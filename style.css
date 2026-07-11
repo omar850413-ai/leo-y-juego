@@ -1537,7 +1537,7 @@ body {
 
 /* --- ESTILOS DE LOGIN Y REGISTRO (ESTILO FLASHBOOK / ASESOR PRO) --- */
 #screen-auth {
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     padding: 30px 15px;
@@ -1546,6 +1546,10 @@ body {
     width: 100%;
     box-sizing: border-box;
     overflow-y: auto;
+}
+
+#screen-auth.active {
+    display: flex;
 }
 
 .auth-container {
@@ -1725,6 +1729,94 @@ body {
 @keyframes scale-up {
     from { transform: scale(0.8); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
+}
+
+/* --- RESPONSIVE MOBILE FIXES FOR ALL SCREENS AND MINI-GAMES --- */
+@media (max-width: 600px) {
+    body {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .app-container {
+        border-radius: 0 !important;
+        border: none !important;
+        min-height: 100vh !important;
+        min-height: -webkit-fill-available !important;
+        box-shadow: none !important;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .app-header {
+        padding: 10px 16px !important;
+        gap: 6px !important;
+    }
+    
+    .logo {
+        font-size: 1.5rem !important;
+    }
+    
+    .welcome-box {
+        margin-bottom: 10px !important;
+    }
+    
+    .welcome-box h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .welcome-box p {
+        font-size: 0.95rem !important;
+    }
+    
+    .character-mascot {
+        font-size: 3rem !important;
+    }
+    
+    /* Compact game area padding */
+    .game-area {
+        padding: 10px !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .game-card {
+        padding: 12px !important;
+    }
+    
+    .game-header {
+        margin-bottom: 10px !important;
+        padding-bottom: 6px !important;
+    }
+    
+    /* Lluvia de globos */
+    .sky-game-area {
+        height: 320px !important;
+    }
+    
+    .balloons-score-box {
+        padding: 4px 16px !important;
+        font-size: 1rem !important;
+    }
+    
+    /* Memorama de regalos */
+    .memo-gift-grid {
+        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)) !important;
+        gap: 8px !important;
+        margin: 10px auto !important;
+    }
+    
+    .memo-gift-card {
+        font-size: 1.2rem !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Camiones Silábicos */
+    .truck-container {
+        padding: 10px !important;
+    }
 }
 
 
