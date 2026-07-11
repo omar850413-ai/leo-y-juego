@@ -3209,6 +3209,9 @@ function loadNextTruckWord() {
 function handleTruckSelection(truckBtn, syllable) {
     if (truckBtn.disabled || !trucksState.gameRunning) return;
     
+    // Pronunciar la sílaba del camión presionado inmediatamente
+    speakText(syllable.toLowerCase());
+    
     const targetSyl = trucksState.currentWordSyllables[trucksState.currentSyllableIndex].toUpperCase();
     
     if (syllable.toUpperCase() === targetSyl) {
@@ -3546,10 +3549,16 @@ function renderMemoTargets() {
         info.style.display = 'flex';
         info.style.alignItems = 'center';
         info.style.gap = '10px';
+        info.style.cursor = 'pointer';
+        info.title = "Toca para escuchar";
         info.innerHTML = `
             <span style="font-size: 2rem;">${target.emoji}</span>
             <span style="font-weight: 700; font-size: 1.1rem; color: #37474F;">${target.word}</span>
         `;
+        info.onclick = () => {
+            playTapSound();
+            speakText(target.word.toLowerCase());
+        };
         
         const slots = document.createElement('div');
         slots.className = 'memo-target-slots';
@@ -4182,17 +4191,43 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-skip-enunciados').onclick = skipAction;
     document.getElementById('btn-skip-standard').onclick = skipAction;
 
-    // Configurar interacciones con la mascota virtual
+    // Configurar interacciones con la mascota virtual (León Leo)
     const mascotBox = document.querySelector('.mascot-character-box');
     if (mascotBox) {
         mascotBox.onclick = () => {
             playTapSound();
-            triggerMascotReaction('idle');
-            // Hacer que hable su diálogo actual
+            triggerMascotReaction('celebrate');
+            
+            const kidName = (state.currentUser && state.currentUser.kidName) ? state.currentUser.kidName : "pequeño lector";
+            const phrases = [
+                `¡Hola, ${kidName}! ¿Qué nivel vamos a jugar hoy?`,
+                `¡Eres un campeón, ${kidName}! Me encanta aprender a leer contigo.`,
+                `¡Leo Aventuras es muy divertido contigo, ${kidName}! ¡Sigue así!`,
+                `¡Me alegra mucho verte jugar hoy, ${kidName}! ¡Vamos a ganar muchas monedas!`,
+                `¡Qué inteligente eres, ${kidName}! Haces un excelente trabajo.`,
+                `¡Grrr! ¡Hola, ${kidName}! ¡Soy Leo el León y soy tu amigo!`
+            ];
+            
+            const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
             const bubble = document.getElementById('mascot-dialog-bubble');
-            if (bubble) speakText(bubble.textContent);
+            if (bubble) {
+                bubble.textContent = randomPhrase;
+            }
+            speakText(randomPhrase);
         };
     }
+
+    // Configurar banners de instrucciones e indicaciones interactivos
+    setTimeout(() => {
+        document.querySelectorAll('.globos-target-banner, #mascot-dialog-bubble, .review-title, #game-title, .exploration-info-box p').forEach(el => {
+            el.style.cursor = 'pointer';
+            el.title = "Toca para escuchar";
+            el.onclick = () => {
+                playTapSound();
+                speakText(el.textContent);
+            };
+        });
+    }, 1000);
 
     document.getElementById('btn-exit-globos').onclick = () => {
         endLluviaGlobos(false);
