@@ -3807,13 +3807,14 @@ function handleAuthSubmit(e) {
         auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
+            const isAdmin = email.toLowerCase() === 'omar850413@gmail.com' || email.toLowerCase() === 'omar850413gmail.com' || email.toLowerCase() === 'admin@leoyjuego.com';
             // Registrar usuario en Firestore con estado pendiente de aprobación
             return db.collection('users').doc(user.uid).set({
                 uid: user.uid,
                 email: email.toLowerCase(),
                 kidName: kidName,
-                role: email.toLowerCase() === 'admin@leoyjuego.com' ? 'admin' : 'user',
-                approved: email.toLowerCase() === 'admin@leoyjuego.com', // El admin se auto-aprueba
+                role: isAdmin ? 'admin' : 'user',
+                approved: isAdmin, // El admin se auto-aprueba
                 stars: 0,
                 coins: 0,
                 unlockedFriends: [],
@@ -3860,7 +3861,8 @@ function handleAuthSubmit(e) {
             if (!doc.exists) {
                 // Si es la cuenta admin y no existe registro en firestore, crearla en caliente
                 const user = auth.currentUser;
-                if (user.email === 'admin@leoyjuego.com') {
+                const isAdmin = user.email.toLowerCase() === 'omar850413@gmail.com' || user.email.toLowerCase() === 'omar850413gmail.com' || user.email.toLowerCase() === 'admin@leoyjuego.com';
+                if (isAdmin) {
                     const adminData = {
                         uid: user.uid,
                         email: user.email,
