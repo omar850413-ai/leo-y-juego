@@ -3777,8 +3777,7 @@ function switchAuthTab(mode) {
     document.getElementById('auth-tab-login').classList.toggle('active', mode === 'login');
     document.getElementById('auth-tab-register').classList.toggle('active', mode === 'register');
     
-    // Inputs
-    document.getElementById('field-kid-name').style.display = mode === 'register' ? 'flex' : 'none';
+    // Botón submit
     document.getElementById('btn-auth-submit').textContent = mode === 'register' ? '¡Registrarse y Jugar! 📝' : '¡Entrar a Jugar! 🚀';
     
     // Clear messages
@@ -3791,7 +3790,7 @@ function handleAuthSubmit(e) {
     
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
-    const kidName = document.getElementById('auth-kid-name').value.trim();
+    const kidName = ""; // Se pedirá adentro de la app tras iniciar sesión
     
     const errorBox = document.getElementById('auth-error-msg');
     const successBox = document.getElementById('auth-success-msg');
@@ -3799,11 +3798,6 @@ function handleAuthSubmit(e) {
     successBox.style.display = 'none';
 
     if (authMode === 'register') {
-        if (!kidName) {
-            errorBox.textContent = "Por favor ingresa el nombre del niño o niña.";
-            errorBox.style.display = 'block';
-            return;
-        }
         
         auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
@@ -3906,8 +3900,8 @@ function handleAuthSubmit(e) {
             document.getElementById('coin-count').textContent = state.coins;
             
             // Update User Greeting
-            document.getElementById('kid-greeting-name').textContent = data.kidName;
-            document.getElementById('user-display-name').textContent = data.role === 'admin' ? 'Admin' : data.kidName;
+            document.getElementById('kid-greeting-name').textContent = data.kidName || "pequeño lector";
+            document.getElementById('user-display-name').textContent = data.role === 'admin' ? 'Admin' : (data.kidName || 'Aventurero');
             document.getElementById('user-status-display').style.display = 'flex';
             
             // Show Admin Tab if applicable
@@ -3920,6 +3914,11 @@ function handleAuthSubmit(e) {
             // Mostrar encabezado al loguearse correctamente
             const appHeader = document.querySelector('.app-header');
             if (appHeader) appHeader.style.display = 'flex';
+            
+            // Si el niño no tiene nombre guardado y no es el administrador, pedirle el nombre
+            if ((!data.kidName || data.kidName === "") && data.role !== 'admin') {
+                document.getElementById('modal-kid-name').style.display = 'flex';
+            }
             
             // Initial mascot setup
             const avatar = document.getElementById('mascot-avatar');
@@ -4127,6 +4126,40 @@ function approveUser(uid) {
         playFailSound();
     });
 }
+
+// Guardar nombre del niño
+window.saveKidName = function() {
+    const input = document.getElementById('input-kid-name');
+    const name = input.value.trim();
+    if (!name) {
+        speakText("Por favor, escribe tu nombre para empezar.");
+        return;
+    }
+    
+    playTapSound();
+    
+    const user = auth.currentUser;
+    if (user) {
+        db.collection('users').doc(user.uid).update({ kidName: name })
+        .then(() => {
+            state.currentUser.kidName = name;
+            document.getElementById('kid-greeting-name').textContent = name;
+            document.getElementById('user-display-name').textContent = name;
+            document.getElementById('modal-kid-name').style.display = 'none';
+            playSuccessSound();
+            speakText("¡Muy bien, " + name + "! Vamos a divertirnos con Leo el León.");
+        })
+        .catch(err => {
+            console.error("Error al guardar nombre:", err);
+            // Fallback local por seguridad
+            state.currentUser.kidName = name;
+            document.getElementById('kid-greeting-name').textContent = name;
+            document.getElementById('modal-kid-name').style.display = 'none';
+        });
+    } else {
+        document.getElementById('modal-kid-name').style.display = 'none';
+    }
+};
 
 // --- Inicializar Eventos y Lector de Pantalla Interactivo ---
 document.addEventListener('DOMContentLoaded', () => {

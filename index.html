@@ -98,10 +98,7 @@
 
                     <!-- FORMULARIO DE ACCESO -->
                     <form id="auth-form" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
-                        <div class="auth-field" id="field-kid-name" style="display: none;">
-                            <label for="auth-kid-name">👦 Nombre del Niño / Niña</label>
-                            <input type="text" id="auth-kid-name" placeholder="Ej: Emiliano" autocomplete="off">
-                        </div>
+                        <!-- El campo de nombre del niño se quita del registro y se pedirá adentro de la app -->
                         <div class="auth-field">
                             <label for="auth-email">✉️ Correo Electrónico</label>
                             <input type="email" id="auth-email" placeholder="correo@ejemplo.com" required>
@@ -485,6 +482,17 @@
         <footer class="app-footer">
             <p>¡Aprende a leer jugando! 🌟</p>
         </footer>
+    </div>
+
+    <!-- MODAL PARA INGRESAR EL NOMBRE DEL NIÑO/NIÑA -->
+    <div id="modal-kid-name" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div style="font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite;">🦁</div>
+            <h3 style="color: #2C3E50; margin-bottom: 10px; font-size: 1.6rem;">¡Hola, bienvenido a Leo Aventuras!</h3>
+            <p style="color: #7F8C8D; margin-bottom: 20px; font-size: 1rem;">¿Cómo se llama el pequeño aventurero o aventurera que va a jugar hoy?</p>
+            <input type="text" id="input-kid-name" placeholder="Escribe tu nombre aquí..." style="width: 80%; padding: 12px 20px; border-radius: 16px; border: 3px solid #FF9100; font-size: 1.1rem; text-align: center; outline: none; margin-bottom: 20px; font-weight: bold; box-shadow: 0 4px 0 #FF9100;">
+            <button class="btn-action-primary" onclick="saveKidName()" style="width: 80%; margin: 0 auto; display: block; font-size: 1.1rem;">¡Empezar Aventura! 🚀</button>
+        </div>
     </div>
 
     <script src="words.js"></script>
