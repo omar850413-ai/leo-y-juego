@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leo y Juego - ¡Aprende a Leer Jugando!</title>
+    <!-- Fuente amigable para niños -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK v8 -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Canvas Confetti CDN para celebración -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            var div = document.getElementById('debug-error-banner');
+            if (!div) {
+                div = document.createElement('div');
+                div.id = 'debug-error-banner';
+                div.style.position = 'fixed';
+                div.style.bottom = '0';
+                div.style.left = '0';
+                div.style.width = '100%';
+                div.style.background = '#e74c3c';
+                div.style.color = '#ffffff';
+                div.style.zIndex = '100000';
+                div.style.padding = '12px';
+                div.style.fontSize = '14px';
+                div.style.fontFamily = 'monospace';
+                div.style.wordBreak = 'break-all';
+                div.style.boxShadow = '0 -4px 10px rgba(0,0,0,0.3)';
+                document.body.appendChild(div);
+            }
+            div.innerHTML = '⚠️ <strong>Error de JS:</strong> ' + msg + '<br><small>Línea ' + lineNo + ' en ' + url.substring(url.lastIndexOf('/') + 1) + '</small>';
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Encabezado con contador de estrellas y selector de voz -->
+        <header class="app-header">
+            <div class="logo" id="btn-home-logo">
+                <span class="bubble-letter green">L</span>
+                <span class="bubble-letter yellow">e</span>
+                <span class="bubble-letter red">o</span>
+                <span class="bubble-letter blue">y</span>
+                <span class="bubble-letter purple">J</span>
+                <span class="bubble-letter orange">u</span>
+                <span class="bubble-letter green">e</span>
+                <span class="bubble-letter yellow">g</span>
+                <span class="bubble-letter red">o</span>
+            </div>
+            
+            <div class="header-controls">
+                <div class="user-status-box" id="user-status-display" style="display: none; align-items: center; gap: 8px; font-weight: 700; color: #37474F; background: #ECEFF1; padding: 6px 12px; border-radius: 12px; font-size: 0.9rem;">
+                    <span class="user-avatar-icon">👦</span>
+                    <span id="user-display-name">Invitado</span>
+                    <button onclick="logout()" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 0; margin-left: 4px;" title="Cerrar sesión">🚪</button>
+                </div>
+                <div class="voice-selector-box">
+                    <span class="voice-icon">🗣️</span>
+                    <select id="voice-select" class="voice-select" title="Elige mi voz">
+                        <option value="">Cargando voces...</option>
+                    </select>
+                </div>
+                <div class="stars-counter" id="stars-display">
+                    <span class="star-icon">⭐</span>
+                    <span id="star-count">0</span>
+                </div>
+                <div class="coins-counter" id="coins-display">
+                    <span class="coin-icon">🪙</span>
+                    <span id="coin-count">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-area">
+            <!-- PANTALLA DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+            <section id="screen-auth" class="screen active">
+                <div class="auth-container">
+                    <div class="auth-header">
+                        <h2>🔑 Leo y Juego</h2>
+                        <p>Plataforma Educativa para Niños</p>
+                    </div>
+                    
+                    <div class="auth-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ECEFF1; padding-bottom: 10px;">
+                        <button class="auth-tab-btn active" id="auth-tab-login" onclick="switchAuthTab('login')">Ingresar</button>
+                        <button class="auth-tab-btn" id="auth-tab-register" onclick="switchAuthTab('register')">Registrarse</button>
+                    </div>
+
+                    <!-- FORMULARIO DE ACCESO -->
+                    <form id="auth-form" onsubmit="handleAuthSubmit(event)" style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+                        <div class="auth-field" id="field-kid-name" style="display: none;">
+                            <label for="auth-kid-name">👦 Nombre del Niño / Niña</label>
+                            <input type="text" id="auth-kid-name" placeholder="Ej: Emiliano" autocomplete="off">
+                        </div>
+                        <div class="auth-field">
+                            <label for="auth-email">✉️ Correo Electrónico</label>
+                            <input type="email" id="auth-email" placeholder="correo@ejemplo.com" required>
+                        </div>
+                        <div class="auth-field">
+                            <label for="auth-password">🔒 Contraseña</label>
+                            <input type="password" id="auth-password" placeholder="Tu contraseña" required>
+                        </div>
+
+                        <div id="auth-error-msg" class="auth-error-box" style="display: none;"></div>
+                        <div id="auth-success-msg" class="auth-success-box" style="display: none;"></div>
+
+                        <button type="submit" class="btn-action-primary" id="btn-auth-submit" style="margin-top: 10px;">¡Entrar a Jugar! 🚀</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- PANTALLA 1: MENÚ PRINCIPAL (CAMINO DE APRENDIZAJE) -->
+            <section id="screen-menu" class="screen">
+                <div class="welcome-box">
+                    <div class="character-mascot" id="menu-mascot">🐒</div>
+                    <h1>¡Hola, <span id="kid-greeting-name">pequeño lector</span>!</h1>
+                    <p>¡Aprende y diviértete con Coco el Mono!</p>
+                </div>
+                
+                <!-- PESTAÑAS DEL MENÚ -->
+                <div class="menu-tabs">
+                    <button class="tab-button active" id="tab-camino" onclick="switchMenuTab('camino')">🗺️ Camino</button>
+                    <button class="tab-button" id="tab-juegos" onclick="switchMenuTab('juegos')">🎮 Juegos Especiales</button>
+                    <button class="tab-button" id="tab-coleccion" onclick="switchMenuTab('coleccion')">🐒 Amigos de Coco</button>
+                    <button class="tab-button" id="tab-admin" onclick="switchMenuTab('admin')" style="display: none;">🔑 Panel Admin</button>
+                </div>
+
+                <!-- CONTENEDOR DEL CAMINO DE NIVELES -->
+                <div id="container-camino" class="tab-content active">
+                    <div class="menu-grid">
+                        <!-- Nivel 1: Conozcamos las Vocales -->
+                        <button class="menu-card card-green" onclick="startLevel(1)">
+                            <div class="card-icon">🗣️</div>
+                            <h3>Nivel 1: Vocales</h3>
+                            <p>Toca y escucha A, E, I, O, U</p>
+                        </button>
+                        <!-- Nivel 2: Conozcamos las Consonantes -->
+                        <button class="menu-card card-yellow" onclick="startLevel(2)">
+                            <div class="card-icon">🎵</div>
+                            <h3>Nivel 2: Consonantes</h3>
+                            <p>Aprende el sonido de las letras</p>
+                        </button>
+                        <!-- Nivel 3: Juego de Vocales -->
+                        <button class="menu-card card-blue" onclick="startLevel(3)">
+                            <div class="card-icon">🎈</div>
+                            <h3>Nivel 3: Juego Vocales</h3>
+                            <p>¿Con qué vocal empieza?</p>
+                        </button>
+                        <!-- Nivel 4: Juego de Consonantes -->
+                        <button class="menu-card card-red" onclick="startLevel(4)">
+                            <div class="card-icon">🦁</div>
+                            <h3>Nivel 4: Juego Consonantes</h3>
+                            <p>¿Con qué letra inicia?</p>
+                        </button>
+                        <!-- Nivel 5: Juego de Sílabas -->
+                        <button class="menu-card card-purple" onclick="startLevel(5)">
+                            <div class="card-icon">💬</div>
+                            <h3>Nivel 5: Sílabas</h3>
+                            <p>¿Con qué sílaba empieza?</p>
+                        </button>
+                        <!-- Nivel 6: Deletreo (Palabras Cortas) -->
+                        <button class="menu-card card-orange" onclick="startLevel(6)">
+                            <div class="card-icon">✏️</div>
+                            <h3>Nivel 6: Palabras Cortas</h3>
+                            <p>Deletrea palabras de 3 y 4 letras</p>
+                        </button>
+                        <!-- Nivel 7: Deletreo (Palabras Grandes) -->
+                        <button class="menu-card card-green" onclick="startLevel(7)">
+                            <div class="card-icon">📚</div>
+                            <h3>Nivel 7: Palabras Grandes</h3>
+                            <p>Deletrea palabras más largas</p>
+                        </button>
+                        <!-- Nivel 8: Silabario Mágico -->
+                        <button class="menu-card card-yellow" onclick="startLevel(8)">
+                            <div class="card-icon">✨</div>
+                            <h3>Nivel 8: Silabario Mágico</h3>
+                            <p>Repasa y junta sílabas en oraciones</p>
+                        </button>
+                        <!-- Nivel 9: Sopa de Letras -->
+                        <button class="menu-card card-red" onclick="startLevel(9)">
+                            <div class="card-icon">🔍</div>
+                            <h3>Nivel 9: Sopa de Letras</h3>
+                            <p>Busca letras para formar la palabra</p>
+                        </button>
+                        <!-- Nivel 10: Constructor de Sílabas -->
+                        <button class="menu-card card-orange" onclick="startLevel(10)">
+                            <div class="card-icon">🧩</div>
+                            <h3>Nivel 10: Juntar Sílabas</h3>
+                            <p>Une las sílabas correctas</p>
+                        </button>
+                        <!-- Nivel 11: Sílabas Inversas -->
+                        <button class="menu-card card-purple" onclick="startLevel(11)">
+                            <div class="card-icon">🌀</div>
+                            <h3>Nivel 11: Sílabas Inversas</h3>
+                            <p>Vocal antes de consonante (AL, ES, IN...)</p>
+                        </button>
+                        <!-- Nivel 12: Primeras Lecturas -->
+                        <button class="menu-card card-blue" onclick="startLevel(12)">
+                            <div class="card-icon">📖</div>
+                            <h3>Nivel 12: Primeras Lecturas</h3>
+                            <p>Une palabras para formar enunciados</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DE JUEGOS ESPECIALES -->
+                <div id="container-juegos" class="tab-content" style="display: none;">
+                    <div class="menu-grid">
+                        <button class="menu-card card-purple" onclick="startLluviaGlobos()">
+                            <div class="card-icon">🎈</div>
+                            <h3>Lluvia de Globos</h3>
+                            <p>¡Explota globos con vocales!</p>
+                        </button>
+                        <button class="menu-card card-green" onclick="startCamionesSilabicos()">
+                            <div class="card-icon">🚚</div>
+                            <h3>Camiones Silábicos</h3>
+                            <p>¡Elige el camión y forma palabras!</p>
+                        </button>
+                        <button class="menu-card card-orange" onclick="startMemoramaRegalos()">
+                            <div class="card-icon">🎁🧠</div>
+                            <h3>Memorama de Regalos</h3>
+                            <p>¡Abre regalos y forma palabras y frases!</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DE LA COLECCIÓN DE AMIGOS DE COCO -->
+                <div id="container-coleccion" class="tab-content" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h3 style="color: #2C3E50; font-size: 1.3rem;">¡Colecciona los Amiguitos de Coco! 🐒</h3>
+                        <p style="color: #7F8C8D; font-size: 0.95rem;">Cada amiguito cuesta <strong>100 monedas</strong>. ¡Desbloquéalos todos!</p>
+                    </div>
+                    <div class="menu-grid" id="friends-shop-grid">
+                        <!-- Las tarjetas de los amiguitos se generarán dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DEL PANEL DE ADMINISTRACIÓN -->
+                <div id="container-admin" class="tab-content" style="display: none;">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #2C3E50; font-size: 1.3rem; text-align: center;">🔑 Panel de Aprobación de Usuarios</h3>
+                        <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">Aprueba los nuevos registros de niños para permitirles el acceso.</p>
+                    </div>
+                    <div id="admin-pending-list" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin: 0 auto; background: #FFF; padding: 20px; border-radius: 16px; border: 3px solid #CFD8DC; box-shadow: 0 4px 0 #CFD8DC;">
+                        <p style="text-align: center; color: #7F8C8D;">Buscando solicitudes pendientes...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANTALLA UNIFICADA DE JUEGO -->
+            <section id="screen-game" class="screen">
+                <div class="game-card">
+                    <div class="game-header">
+                        <button class="btn-back" id="btn-back-menu">⬅️ Menú</button>
+                        <h2 id="game-title">Nivel 1: Vocales</h2>
+                        <div class="level-indicator" id="level-dots">
+                            <!-- Puntos de progreso o estrellas -->
+                        </div>
+                    </div>
+
+                    <!-- MASCOTA VIRTUAL INTERACTIVA -->
+                    <div class="mascot-game-wrapper" id="mascot-game-container">
+                        <div class="mascot-bubble" id="mascot-dialog-bubble">¡Hola! ¿Me ayudas a jugar?</div>
+                        <div class="mascot-character-box">
+                            <span class="mascot-avatar-emoji" id="mascot-avatar">🦕</span>
+                            <div class="mascot-shadow"></div>
+                        </div>
+                    </div>
+
+                    <!-- FASE DE REPASO DEL SILABARIO (Nivel 8) -->
+                    <div id="silabario-review-panel" class="silabario-review-container" style="display: none;">
+                        <h3 class="review-title">¡Escucha y repasa las sílabas!</h3>
+                        <div class="syllables-review-row" id="syllables-review-row">
+                            <!-- Sílabas destacadas ej: BA, BE, BI, BO, BU -->
+                        </div>
+                        <button class="btn-action-primary" id="btn-start-silabario-game" style="display: none;">
+                            ¡Comenzar Juego! 👉
+                        </button>
+                    </div>
+
+                    <!-- PANEL DE EXPLORACIÓN / DESCUBRIMIENTO LIBRE (Niveles 1 y 2) -->
+                    <div id="exploration-panel" class="exploration-container" style="display: none;">
+                        <div class="exploration-info-box">
+                            <span class="info-mascot">💡</span>
+                            <p>¡Toca cada letra para escuchar cómo suena!</p>
+                        </div>
+                        <div class="letters-grid" id="exploration-letters-grid">
+                            <!-- Letras de vocales o consonantes generadas por JS -->
+                        </div>
+                    </div>
+
+                    <!-- PANEL DE SOPA DE LETRAS (Nivel 9) -->
+                    <div id="sopa-letras-panel" style="display: none;">
+                        <div class="game-visual-panel">
+                            <div class="emoji-display" id="sopa-emoji">🎈</div>
+                            <button class="btn-sound-play-small" id="btn-repeat-sound-sopa" title="Escuchar sonido">
+                                🔊 Escuchar
+                            </button>
+                        </div>
+                        <div class="game-instructions" id="sopa-prompt">Busca las letras en orden para formar la palabra</div>
+                        <div class="word-placeholder" id="sopa-word-slots"></div>
+                        <div class="sopa-grid" id="sopa-letters-grid"></div>
+                        <button class="btn-skip" id="btn-skip-sopa">Saltar palabra ➡️</button>
+                    </div>
+
+                    <!-- PANEL DE CONSTRUCTOR DE SÍLABAS (Nivel 10) -->
+                    <div id="constructor-silabas-panel" style="display: none;">
+                        <div class="game-visual-panel">
+                            <div class="emoji-display" id="constructor-emoji">🎈</div>
+                            <button class="btn-sound-play-small" id="btn-repeat-sound-constructor" title="Escuchar sonido">
+                                🔊 Escuchar
+                            </button>
+                        </div>
+                        <div class="game-instructions" id="constructor-prompt">Une las sílabas en orden para formar la palabra</div>
+                        <div class="word-placeholder" id="constructor-word-slots"></div>
+                        <div class="options-container" id="constructor-bubbles-container" style="justify-content: center; gap: 15px; margin-top: 20px;"></div>
+                        <button class="btn-skip" id="btn-skip-constructor">Saltar palabra ➡️</button>
+                    </div>
+
+                    <!-- PANEL DE CONSTRUCTOR DE ENUNCIADOS (Nivel 12) -->
+                    <div id="constructor-enunciados-panel" style="display: none;">
+                        <div class="game-visual-panel">
+                            <div class="emoji-display" id="enunciados-emoji">🎈</div>
+                            <button class="btn-sound-play-small" id="btn-repeat-sound-enunciados" title="Escuchar sonido">
+                                🔊 Escuchar
+                            </button>
+                        </div>
+                        <div class="game-instructions" id="enunciados-prompt">Une las palabras para formar el enunciado</div>
+                        <div class="word-placeholder" id="enunciados-word-slots" style="flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 60px;"></div>
+                        <div class="options-container" id="enunciados-bubbles-container" style="justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap;"></div>
+                        <button class="btn-skip" id="btn-skip-enunciados">Saltar oración ➡️</button>
+                    </div>
+
+                    <!-- PANEL DE LLUVIA DE GLOBOS (MINI-JUEGO) -->
+                    <div id="lluvia-globos-panel" style="display: none; flex-direction: column; width: 100%;">
+                        <!-- SUB-VISTA 1: SELECTOR DE NIVELES DEL JUEGO DE GLOBOS -->
+                        <div id="globos-level-selector" style="width: 100%;">
+                            <h3 style="text-align: center; margin-bottom: 20px; color: #2C3E50; font-size: 1.4rem;">Elige un Nivel de Globos 🎈</h3>
+                            <div class="globos-level-grid" id="globos-level-grid">
+                                <!-- Botones de nivel generados dinámicamente -->
+                            </div>
+                            <button class="btn-skip" id="btn-exit-globos-selector" style="margin-top: 25px; background-color: #ECEFF1; color: #37474F; border-color: #CFD8DC; box-shadow: 0 4px 0 #B0BEC5;">
+                                Volver a Juegos ⬅️
+                            </button>
+                        </div>
+                        
+                        <!-- SUB-VISTA 2: ÁREA DE JUEGO DE GLOBOS -->
+                        <div id="globos-game-play" style="display: none; width: 100%; flex-direction: column; align-items: center;">
+                            <div class="sky-header" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; margin-bottom: 12px; flex-wrap: wrap;">
+                                <div class="globos-target-banner" id="globos-target-banner">¡Explota la vocal A!</div>
+                                <div class="balloons-score-box">
+                                    🎈 Puntos: <span id="globos-score">0</span> / 10
+                                </div>
+                            </div>
+                            <div class="sky-game-area" id="globos-area">
+                                <!-- Los globos flotantes aparecerán aquí dinámicamente -->
+                            </div>
+                            <button class="btn-skip" id="btn-exit-globos" style="margin-top: 15px; background-color: #ECEFF1; color: #37474F; border-color: #CFD8DC; box-shadow: 0 4px 0 #B0BEC5;">
+                                Salir del Nivel 🚪
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANEL DE CAJAS SORPRESA (CAMIONES SILÁBICOS) -->
+                    <div id="camiones-silabicos-panel" style="display: none; flex-direction: column; width: 100%;">
+                        <!-- SUB-VISTA 1: SELECTOR DE NIVELES -->
+                        <div id="trucks-level-selector" style="width: 100%;">
+                            <h3 style="text-align: center; margin-bottom: 20px; color: #2C3E50; font-size: 1.4rem;">Elige un Nivel de Camiones Silábicos 🚚</h3>
+                            <div class="globos-level-grid" id="trucks-level-grid">
+                                <!-- Botones de nivel generados dinámicamente -->
+                            </div>
+                            <button class="btn-skip" id="btn-exit-trucks-selector" style="margin-top: 25px; background-color: #ECEFF1; color: #37474F; border-color: #CFD8DC; box-shadow: 0 4px 0 #B0BEC5;">
+                                Volver a Juegos ⬅️
+                            </button>
+                        </div>
+                        
+                        <!-- SUB-VISTA 2: ÁREA DE JUEGO -->
+                        <div id="trucks-game-play" style="display: none; width: 100%; flex-direction: column; align-items: center; position: relative; overflow: hidden; min-height: 500px;">
+                            <div class="sky-header" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; margin-bottom: 12px; flex-wrap: wrap;">
+                                <div class="globos-target-banner" id="trucks-target-banner">¡Completa la palabra!</div>
+                                <div class="balloons-score-box" style="background-color: #E8F5E9; border-color: var(--color-green); color: #2E7D32; box-shadow: 0 4px 0 var(--color-green);">
+                                    🚚 Puntos: <span id="trucks-score">0</span> / 10
+                                </div>
+                            </div>
+                            
+                            <!-- EMOJI Y SLOTS DE LA PALABRA -->
+                            <div class="game-visual-panel" style="margin-bottom: 15px;">
+                                <div class="emoji-display" id="trucks-emoji" style="font-size: 4.5rem; filter: drop-shadow(2px 4px 0px rgba(0,0,0,0.1));">🚚</div>
+                                <button class="btn-sound-play-small" id="btn-repeat-sound-trucks" title="Escuchar sonido">
+                                    🔊 Escuchar
+                                </button>
+                            </div>
+                            <div class="word-placeholder" id="trucks-word-slots" style="margin-bottom: 25px; min-height: 60px;">
+                                <!-- Casillas vacías para rellenar en orden -->
+                            </div>
+
+                            <!-- ZONA DE ESTACIONAMIENTO DE CAMIONES -->
+                            <div class="parking-area" id="trucks-parking-grid" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; width: 100%; margin-top: 30px; padding: 20px; background: #ECEFF1; border-radius: 24px; border: 4px dashed #B0BEC5;">
+                                <!-- Los camiones aparecerán aquí dinámicamente -->
+                            </div>
+
+                            <button class="btn-skip" id="btn-exit-trucks" style="margin-top: 25px; background-color: #ECEFF1; color: #37474F; border-color: #CFD8DC; box-shadow: 0 4px 0 #B0BEC5;">
+                                Salir del Nivel 🚪
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANEL DE MEMORAMA DE REGALOS (MINI-JUEGO) -->
+                    <div id="memorama-regalos-panel" style="display: none; flex-direction: column; width: 100%;">
+                        <!-- SUB-VISTA 1: SELECTOR DE NIVELES -->
+                        <div id="memo-level-selector" style="width: 100%;">
+                            <h3 style="text-align: center; margin-bottom: 20px; color: #2C3E50; font-size: 1.4rem;">Elige un Nivel de Memorama de Regalos 🎁🧠</h3>
+                            <div class="globos-level-grid" id="memo-level-grid">
+                                <!-- Botones de nivel generados dinámicamente -->
+                            </div>
+                            <button class="btn-skip" id="btn-exit-memo-selector" style="margin-top: 25px; background-color: #ECEFF1; color: #37474F; border-color: #CFD8DC; box-shadow: 0 4px 0 #B0BEC5;">
+                                Volver a Juegos ⬅️
+                            </button>
+                        </div>
+                        
+                        <!-- SUB-VISTA 2: ÁREA DE JUEGO -->
+                        <div id="memo-game-play" style="display: none; width: 100%; flex-direction: column; align-items: center; min-height: 500px;">
+                            <div class="sky-header" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; margin-bottom: 15px; flex-wrap: wrap;">
+                                <div class="globos-target-banner" id="memo-target-banner">¡Mantén presionado para ver la sílaba y arma las palabras!</div>
+                                <div class="balloons-score-box" style="background-color: #E8F5E9; border-color: var(--color-green); color: #2E7D32; box-shadow: 0 4px 0 var(--color-green);">
+                                    ⭐ Estrellas: <span id="memo-score">0</span>
+                                </div>
+                            </div>
+                            
+                            <!-- PALABRAS / ENUNCIADOS OBJETIVO A ENCONTRAR -->
+                            <div id="memo-targets-container" style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 20px; background: #FFF; padding: 15px; border-radius: 16px; border: 3px solid #CFD8DC; box-shadow: 0 4px 0 #CFD8DC;">
+                                <!-- Aquí aparecerán las 3 palabras objetivo o la frase con sus slots vacíos -->
+                            </div>
+
+                            <!-- CONTENEDOR DE REGALOS (REJILLA MEMORAMA) -->
+                            <div class="memo-gift-grid" id="memo-gifts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 12px; width: 100%; max-width: 480px; margin: 15px auto; padding: 10px; perspective: 1000px;">
+                                <!-- Los regalos aparecerán aquí dinámicamente -->
+                            </div>
+
+                            <button class="btn-skip" id="btn-exit-memo" style="margin-top: 25px; background-color: #ECEFF1; color: #37474F; border-color: #CFD8DC; box-shadow: 0 4px 0 #B0BEC5;">
+                                Salir del Nivel 🚪
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANELES DE JUEGO ESTÁNDAR (Ocultos en repaso y exploración libre) -->
+                    <div id="game-play-panel">
+                        <!-- Panel de ayuda e instrucción visual -->
+                        <div class="game-visual-panel">
+                            <div class="emoji-display" id="game-emoji">🎈</div>
+                            <button class="btn-sound-play-small" id="btn-repeat-sound" title="Escuchar sonido">
+                                🔊 Escuchar
+                            </button>
+                        </div>
+
+                        <!-- Título de instrucción amigable -->
+                        <div class="game-instructions" id="game-prompt">Encuentra la letra correcta</div>
+
+                        <!-- Espacio de la palabra en formación (para deletreos) -->
+                        <div class="word-placeholder" id="game-word-slots">
+                            <!-- Casillas vacías para rellenar en orden -->
+                        </div>
+
+                        <!-- Opciones de respuesta o letras a ordenar -->
+                        <div class="options-container" id="game-options-container">
+                            <!-- Opciones dinámicas -->
+                        </div>
+                        <button class="btn-skip" id="btn-skip-standard" style="display: none;">Saltar palabra ➡️</button>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>¡Aprende a leer jugando! 🌟</p>
+        </footer>
+    </div>
+
+    <script src="words.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
