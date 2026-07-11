@@ -3750,13 +3750,14 @@ function endMemoLevel(won) {
 
 // --- SISTEMA DE AUTENTICACIÓN Y BASE DE DATOS (FIREBASE INTEGRACIÓN) ---
 const firebaseConfig = {
-    apiKey: "AIzaSyBRWJ9_oxTQMLw2p9pTOyPKjFFChYaS6pg",
-    authDomain: "azteca-sport.firebaseapp.com",
-    projectId: "azteca-sport",
-    storageBucket: "azteca-sport.firebasestorage.app",
-    messagingSenderId: "730062879584",
-    appId: "1:730062879584:web:d201e2dcf73180545cfc05",
-    measurementId: "G-H9J36XC59M"
+  apiKey: "AIzaSyCzeLaQf1X3HaDXrRTztOpC69f7t4OsQVs",
+  authDomain: "soyasesorfmf-16309.firebaseapp.com",
+  databaseURL: "https://soyasesorfmf-16309-default-rtdb.firebaseio.com",
+  projectId: "soyasesorfmf-16309",
+  storageBucket: "soyasesorfmf-16309.firebasestorage.app",
+  messagingSenderId: "548858719945",
+  appId: "1:548858719945:web:9028d4d71f6f3782ed2718",
+  measurementId: "G-TETV8RSN34"
 };
 
 // Inicializar Firebase
