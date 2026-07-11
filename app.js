@@ -3817,7 +3817,7 @@ function handleAuthSubmit(e) {
                 stars: 0,
                 coins: 0,
                 unlockedFriends: [],
-                activeMascot: "🐒"
+                activeMascot: "🦁"
             });
         })
         .then(() => {
@@ -3828,7 +3828,7 @@ function handleAuthSubmit(e) {
                 body: JSON.stringify({
                     email: email,
                     kidName: kidName,
-                    message: `¡Hola! Un nuevo niño se ha registrado en Leo y Juego.\nNombre del Niño: ${kidName}\nCorreo: ${email}\nEstado: PENDIENTE DE APROBACIÓN.`
+                    message: `¡Hola! Un nuevo niño se ha registrado en Leo Aventuras.\nNombre del Niño: ${kidName}\nCorreo: ${email}\nEstado: PENDIENTE DE APROBACIÓN.`
                 })
             }).catch(err => console.warn("Error al enviar notificación de correo:", err));
 
@@ -3870,7 +3870,7 @@ function handleAuthSubmit(e) {
                         stars: 0,
                         coins: 0,
                         unlockedFriends: [],
-                        activeMascot: "🐒"
+                        activeMascot: "🦁"
                     };
                     return db.collection('users').doc(user.uid).set(adminData).then(() => adminData);
                 }
@@ -3896,7 +3896,7 @@ function handleAuthSubmit(e) {
             state.stars = data.stars || 0;
             state.coins = data.coins || 0;
             state.unlockedFriends = data.unlockedFriends || [];
-            state.activeMascot = data.activeMascot || "🐒";
+            state.activeMascot = data.activeMascot || "🦁";
             
             // Update UI counters
             document.getElementById('star-count').textContent = state.stars;
@@ -3913,6 +3913,10 @@ function handleAuthSubmit(e) {
             // Hide Auth screen, show Menu screen
             document.getElementById('screen-auth').classList.remove('active');
             document.getElementById('screen-menu').classList.add('active');
+            
+            // Mostrar encabezado al loguearse correctamente
+            const appHeader = document.querySelector('.app-header');
+            if (appHeader) appHeader.style.display = 'flex';
             
             // Initial mascot setup
             const avatar = document.getElementById('mascot-avatar');
@@ -3946,6 +3950,10 @@ function logout() {
     // Switch back to login
     document.getElementById('screen-menu').classList.remove('active');
     document.getElementById('screen-auth').classList.add('active');
+    
+    // Ocultar encabezado en login
+    const appHeader = document.querySelector('.app-header');
+    if (appHeader) appHeader.style.display = 'none';
 }
 
 function saveUserProgress() {
@@ -3974,14 +3982,14 @@ window.addCoin = function(amount = 1) {
     saveUserProgress();
 };
 
-// --- TIENDA DE AMIGOS DE COCO ---
-const COCO_FRIENDS = [
-    { key: "🐒", name: "Coco el Mono", cost: 0 },
-    { key: "🐼", name: "Pandita", cost: 100 },
-    { key: "🦁", name: "Leoncito", cost: 200 },
-    { key: "🐱", name: "Gatito", cost: 300 },
-    { key: "🐶", name: "Perrito", cost: 400 },
-    { key: "🦊", name: "Zorrito", cost: 500 }
+// --- TIENDA DE AMIGOS DE LEO ---
+const LEO_FRIENDS = [
+    { key: "🦁", name: "Leo el León", cost: 0 },
+    { key: "🐼", name: "Copito", cost: 100 },
+    { key: "🐒", name: "Coco", cost: 200 },
+    { key: "🐱", name: "Bigotes", cost: 300 },
+    { key: "🐶", name: "Toby", cost: 400 },
+    { key: "🦊", name: "Risitos", cost: 500 }
 ];
 
 function renderFriendsShop() {
@@ -3989,7 +3997,7 @@ function renderFriendsShop() {
     if (!grid) return;
     grid.innerHTML = '';
     
-    COCO_FRIENDS.forEach(f => {
+    LEO_FRIENDS.forEach(f => {
         const isUnlocked = f.cost === 0 || state.unlockedFriends.includes(f.key);
         const isActive = state.activeMascot === f.key;
         
@@ -4028,7 +4036,7 @@ function selectMascot(friendKey) {
     const menuMascot = document.getElementById('menu-mascot');
     if (menuMascot) menuMascot.textContent = friendKey;
     
-    speakText("¡Hola! Ahora tu compañero es el " + COCO_FRIENDS.find(f => f.key === friendKey).name);
+    speakText("¡Hola! Ahora tu compañero es el " + LEO_FRIENDS.find(f => f.key === friendKey).name);
     
     saveUserProgress();
     renderFriendsShop();
@@ -4054,7 +4062,7 @@ function unlockFriend(friendKey, cost) {
     const menuMascot = document.getElementById('menu-mascot');
     if (menuMascot) menuMascot.textContent = friendKey;
     
-    const friendName = COCO_FRIENDS.find(f => f.key === friendKey).name;
+    const friendName = LEO_FRIENDS.find(f => f.key === friendKey).name;
     
     if (typeof confetti === 'function') {
         confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
@@ -4123,6 +4131,10 @@ document.addEventListener('DOMContentLoaded', () => {
     populateVoiceList();
     document.getElementById('star-count').textContent = state.stars;
     document.getElementById('coin-count').textContent = state.coins;
+
+    // Ocultar encabezado en el inicio (pantalla de login activa)
+    const appHeader = document.querySelector('.app-header');
+    if (appHeader) appHeader.style.display = 'none';
 
     // Configurar botones de Saltar Palabra
     const skipAction = () => {
