@@ -44,23 +44,27 @@
     <div class="app-container">
         <!-- Encabezado con contador de estrellas y selector de voz -->
         <header class="app-header">
-            <div class="logo" id="btn-home-logo">
-                <span class="bubble-letter green">L</span>
-                <span class="bubble-letter yellow">e</span>
-                <span class="bubble-letter red">o</span>
-                <span class="bubble-letter blue">A</span>
-                <span class="bubble-letter purple">v</span>
-                <span class="bubble-letter orange">e</span>
-                <span class="bubble-letter green">n</span>
-                <span class="bubble-letter yellow">t</span>
-                <span class="bubble-letter red">u</span>
-                <span class="bubble-letter blue">r</span>
-                <span class="bubble-letter purple">a</span>
-                <span class="bubble-letter orange">s</span>
+            <div class="logo" id="btn-home-logo" style="line-height: 1.1; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div style="display: block;">
+                    <span class="bubble-letter green">L</span>
+                    <span class="bubble-letter yellow">e</span>
+                    <span class="bubble-letter red">o</span>
+                </div>
+                <div style="font-size: 0.75em; display: block; margin-top: 2px;">
+                    <span class="bubble-letter blue">A</span>
+                    <span class="bubble-letter purple">v</span>
+                    <span class="bubble-letter orange">e</span>
+                    <span class="bubble-letter green">n</span>
+                    <span class="bubble-letter yellow">t</span>
+                    <span class="bubble-letter red">u</span>
+                    <span class="bubble-letter blue">r</span>
+                    <span class="bubble-letter purple">a</span>
+                    <span class="bubble-letter orange">s</span>
+                </div>
             </div>
             
             <div class="header-controls">
-                <div class="user-status-box" id="user-status-display" style="display: none; align-items: center; gap: 8px; font-weight: 700; color: #37474F; background: #ECEFF1; padding: 6px 12px; border-radius: 12px; font-size: 0.9rem;">
+                <div class="user-status-box" id="user-status-display" onclick="openChangeNameModal()" style="display: none; align-items: center; gap: 8px; font-weight: 700; color: #37474F; background: #ECEFF1; padding: 6px 12px; border-radius: 12px; font-size: 0.9rem; cursor: pointer;" title="Cambiar nombre del niño">
                     <span class="user-avatar-icon">👦</span>
                     <span id="user-display-name">Invitado</span>
                     <button onclick="logout()" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 0; margin-left: 4px;" title="Cerrar sesión">🚪</button>
@@ -124,7 +128,8 @@
                 <div class="welcome-box">
                     <div class="character-mascot" id="menu-mascot">🦁</div>
                     <h1>¡Hola, <span id="kid-greeting-name">pequeño lector</span>!</h1>
-                    <p>¡Aprende y diviértete con Leo el León!</p>
+                    <button onclick="openChangeNameModal()" style="background: #E3F2FD; border: 2px solid var(--color-blue); border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: var(--color-blue); cursor: pointer; font-weight: 700; margin-top: 5px; box-shadow: 0 3px 0 var(--color-blue); transition: transform 0.1s;">✏️ Cambiar Nombre</button>
+                    <p style="margin-top: 8px;">¡Aprende y diviértete con Leo el León!</p>
                 </div>
                 
                 <!-- PESTAÑAS DEL MENÚ -->
@@ -132,7 +137,7 @@
                     <button class="tab-button active" id="tab-camino" onclick="switchMenuTab('camino')">🗺️ Camino</button>
                     <button class="tab-button" id="tab-juegos" onclick="switchMenuTab('juegos')">🎮 Juegos Especiales</button>
                     <button class="tab-button" id="tab-coleccion" onclick="switchMenuTab('coleccion')">🦁 Amigos de Leo</button>
-                    <button class="tab-button" id="tab-admin" onclick="switchMenuTab('admin')" style="display: none;">🔑 Panel Admin</button>
+                    <button class="tab-button" id="tab-admin" onclick="switchMenuTab('admin')" style="display: none;">⚙️ Panel de Control</button>
                 </div>
 
                 <!-- CONTENEDOR DEL CAMINO DE NIVELES -->
@@ -248,7 +253,7 @@
                 <!-- CONTENEDOR DEL PANEL DE ADMINISTRACIÓN -->
                 <div id="container-admin" class="tab-content" style="display: none;">
                     <div style="margin-bottom: 20px;">
-                        <h3 style="color: #2C3E50; font-size: 1.3rem; text-align: center;">🔑 Panel de Aprobación de Usuarios</h3>
+                        <h3 style="color: #2C3E50; font-size: 1.3rem; text-align: center;">⚙️ Panel de Control</h3>
                         <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">Aprueba los nuevos registros de niños para permitirles el acceso.</p>
                     </div>
                     <div id="admin-pending-list" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin: 0 auto; background: #FFF; padding: 20px; border-radius: 16px; border: 3px solid #CFD8DC; box-shadow: 0 4px 0 #CFD8DC;">

@@ -1695,8 +1695,21 @@ function triggerMascotReaction(type) {
 
 // --- Navegación ---
 function showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(scr => scr.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
+    document.querySelectorAll('.screen').forEach(scr => {
+        scr.classList.remove('active');
+        scr.style.display = 'none'; // Forzar ocultación inline de todas las pantallas
+    });
+    
+    const activeScr = document.getElementById(screenId);
+    if (activeScr) {
+        activeScr.classList.add('active');
+        // Usar display flex en el login y block en las demás para evitar solapamientos
+        if (screenId === 'screen-auth') {
+            activeScr.style.display = 'flex';
+        } else {
+            activeScr.style.display = 'block';
+        }
+    }
     playTapSound();
 }
 
@@ -3934,8 +3947,7 @@ function handleAuthSubmit(e) {
             document.getElementById('tab-admin').style.display = data.role === 'admin' ? 'inline-block' : 'none';
             
             // Hide Auth screen, show Menu screen
-            document.getElementById('screen-auth').classList.remove('active');
-            document.getElementById('screen-menu').classList.add('active');
+            showScreen('screen-menu');
             
             // Mostrar encabezado al loguearse correctamente
             const appHeader = document.querySelector('.app-header');
@@ -3976,8 +3988,7 @@ function logout() {
     document.getElementById('coin-count').textContent = '0';
     
     // Switch back to login
-    document.getElementById('screen-menu').classList.remove('active');
-    document.getElementById('screen-auth').classList.add('active');
+    showScreen('screen-auth');
     
     // Ocultar encabezado en login
     const appHeader = document.querySelector('.app-header');
@@ -4153,6 +4164,19 @@ function approveUser(uid) {
     });
 }
 
+// Abrir modal de cambiar nombre del niño
+window.openChangeNameModal = function() {
+    playTapSound();
+    const input = document.getElementById('input-kid-name');
+    if (input) {
+        input.value = (state.currentUser && state.currentUser.kidName) ? state.currentUser.kidName : "";
+    }
+    const modal = document.getElementById('modal-kid-name');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+};
+
 // Guardar nombre del niño
 window.saveKidName = function() {
     const input = document.getElementById('input-kid-name');
@@ -4221,8 +4245,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.getElementById('user-status-display').style.display = 'flex';
                         document.getElementById('tab-admin').style.display = data.role === 'admin' ? 'inline-block' : 'none';
                         
-                        document.getElementById('screen-auth').classList.remove('active');
-                        document.getElementById('screen-menu').classList.add('active');
+                        showScreen('screen-menu');
                         
                         const appHeader = document.querySelector('.app-header');
                         if (appHeader) appHeader.style.display = 'flex';
