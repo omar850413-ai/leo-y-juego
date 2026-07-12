@@ -1824,7 +1824,9 @@ function loadRound() {
         data.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn-option';
-            btn.textContent = opt;
+            // Alternar de forma aleatoria entre mayúsculas y minúsculas
+            const displayChar = Math.random() > 0.5 ? opt.toUpperCase() : opt.toLowerCase();
+            btn.textContent = displayChar;
             btn.onclick = () => checkSelectionAnswer(opt, btn);
             optionsContainer.appendChild(btn);
         });
@@ -1852,7 +1854,9 @@ function loadRound() {
         letters.forEach((item) => {
             const btn = document.createElement('button');
             btn.className = 'btn-option';
-            btn.textContent = item.char;
+            // Alternar de forma aleatoria entre mayúscula y minúscula
+            const displayChar = Math.random() > 0.5 ? item.char.toUpperCase() : item.char.toLowerCase();
+            btn.textContent = displayChar;
             btn.onclick = () => handleLetterSelection(item.char, btn);
             optionsContainer.appendChild(btn);
         });
@@ -1889,7 +1893,8 @@ function loadExplorationRound() {
     list.forEach(letter => {
         const btn = document.createElement('button');
         btn.className = 'letter-card';
-        btn.textContent = letter;
+        // Mostrar mayúscula y minúscula juntas en las tarjetas de descubrimiento (ej: A a, B b)
+        btn.innerHTML = `<div style="font-size: 2.2rem; font-weight: 800;">${letter}</div><div style="font-size: 1.4rem; color: #7F8C8D; margin-top: -4px;">${letter.toLowerCase()}</div>`;
         
         btn.onclick = () => {
             playTapSound();
@@ -4188,6 +4193,78 @@ document.addEventListener('DOMContentLoaded', () => {
     populateVoiceList();
     document.getElementById('star-count').textContent = state.stars;
     document.getElementById('coin-count').textContent = state.coins;
+
+    // --- Persistencia de Sesión de Firebase ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // Usuario ya tiene sesión iniciada, restaurar perfil
+            db.collection('users').doc(user.uid).get()
+            .then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.approved) {
+                        state.currentUser = {
+                            uid: data.uid,
+                            email: data.email,
+                            kidName: data.kidName,
+                            role: data.role
+                        };
+                        state.stars = data.stars || 0;
+                        state.coins = data.coins || 0;
+                        state.unlockedFriends = data.unlockedFriends || [];
+                        state.activeMascot = data.activeMascot || "🦁";
+                        
+                        document.getElementById('star-count').textContent = state.stars;
+                        document.getElementById('coin-count').textContent = state.coins;
+                        document.getElementById('kid-greeting-name').textContent = data.kidName || "pequeño lector";
+                        document.getElementById('user-display-name').textContent = data.role === 'admin' ? 'Admin' : (data.kidName || 'Aventurero');
+                        document.getElementById('user-status-display').style.display = 'flex';
+                        document.getElementById('tab-admin').style.display = data.role === 'admin' ? 'inline-block' : 'none';
+                        
+                        document.getElementById('screen-auth').classList.remove('active');
+                        document.getElementById('screen-menu').classList.add('active');
+                        
+                        const appHeader = document.querySelector('.app-header');
+                        if (appHeader) appHeader.style.display = 'flex';
+                        
+                        const avatar = document.getElementById('mascot-avatar');
+                        if (avatar) avatar.textContent = state.activeMascot;
+                        const menuMascot = document.getElementById('menu-mascot');
+                        if (menuMascot) menuMascot.textContent = state.activeMascot;
+                        
+                        if ((!data.kidName || data.kidName === "") && data.role !== 'admin') {
+                            document.getElementById('modal-kid-name').style.display = 'flex';
+                        }
+                        
+                        renderFriendsShop();
+                        history.pushState({page: 'menu'}, '');
+                    } else {
+                        auth.signOut();
+                    }
+                }
+            })
+            .catch(err => console.error("Error al restaurar sesión:", err));
+        } else {
+            history.pushState({page: 'login'}, '');
+        }
+    });
+
+    // --- Prevenir salida con botón atrás físico o de gestos en móviles ---
+    window.addEventListener('popstate', (e) => {
+        if (state.currentUser) {
+            const activeScreen = document.querySelector('.screen.active');
+            if (activeScreen && activeScreen.id !== 'screen-menu') {
+                playTapSound();
+                // Si está en un juego, regresar al menú principal en vez de salir de la web
+                showScreen('screen-menu');
+                history.pushState({page: 'menu'}, '');
+            } else {
+                history.pushState({page: 'menu'}, '');
+            }
+        } else {
+            history.pushState({page: 'login'}, '');
+        }
+    });
 
     // Ocultar encabezado en el inicio (pantalla de login activa)
     const appHeader = document.querySelector('.app-header');
