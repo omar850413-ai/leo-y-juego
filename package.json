@@ -1,0 +1,13 @@
+{
+  "name": "leo-y-juego",
+  "version": "1.0.0",
+  "description": "Plataforma Educativa Leo y Juego",
+  "main": "server.js",
+  "scripts": {
+    "build": "echo 'Static build'",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
