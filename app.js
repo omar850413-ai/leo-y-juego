@@ -1520,8 +1520,9 @@ function speakText(text, callback) {
             }
         }
 
-        // Limpiar cualquier etiqueta HTML del texto hablado para evitar que se pronuncien las etiquetas
-        let plainText = text.replace(/<[^>]*>/g, "");
+        // Limpiar cualquier etiqueta HTML del texto hablado para evitar que se pronuncien las etiquetas y pasar a minúsculas
+        // Esto previene que el motor de voz deletree sílabas escritas en mayúscula (como AM, MA, etc.)
+        let plainText = text.replace(/<[^>]*>/g, "").toLowerCase();
 
         // Evitar que el lector de voz interprete las sílabas "xi" y "vi" como números romanos (11 y 6) en ambos idiomas
         plainText = plainText.replace(/\bxi\b/gi, "si");
@@ -3789,6 +3790,10 @@ function switchAuthTab(mode) {
     // Botón submit
     document.getElementById('btn-auth-submit').textContent = mode === 'register' ? '¡Registrarse y Jugar! 📝' : '¡Entrar a Jugar! 🚀';
     
+    // Inputs
+    const fieldKidName = document.getElementById('field-kid-name');
+    if (fieldKidName) fieldKidName.style.display = mode === 'register' ? 'flex' : 'none';
+    
     // Clear messages
     document.getElementById('auth-error-msg').style.display = 'none';
     document.getElementById('auth-success-msg').style.display = 'none';
@@ -3799,7 +3804,8 @@ function handleAuthSubmit(e) {
     
     const email = document.getElementById('auth-email').value.trim();
     const password = document.getElementById('auth-password').value;
-    const kidName = ""; // Se pedirá adentro de la app tras iniciar sesión
+    const kidNameInput = document.getElementById('auth-kid-name');
+    const kidName = kidNameInput ? kidNameInput.value.trim() : "";
     
     const errorBox = document.getElementById('auth-error-msg');
     const successBox = document.getElementById('auth-success-msg');
@@ -3807,6 +3813,12 @@ function handleAuthSubmit(e) {
     successBox.style.display = 'none';
 
     if (authMode === 'register') {
+        const isAdmin = email.toLowerCase() === 'omar850413@gmail.com' || email.toLowerCase() === 'omar850413gmail.com' || email.toLowerCase() === 'admin@leoyjuego.com';
+        if (!kidName && !isAdmin) {
+            errorBox.textContent = "Por favor ingresa el nombre del niño o niña.";
+            errorBox.style.display = 'block';
+            return;
+        }
         
         auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
