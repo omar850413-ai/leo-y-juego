@@ -2474,7 +2474,7 @@ function nextRound() {
                 showScreen('screen-menu');
             }, 2500);
         }
-    }, 2000);
+    }, 2800);
 }
 
 // Repetir audio
@@ -4430,3 +4430,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// --- REGISTRO DE SERVICE WORKER PARA PWA ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+        .catch(err => console.warn('Fallo al registrar Service Worker:', err));
+    });
+}
+
+// --- CONTROL DE INSTALACIÓN PWA ---
+let deferredPrompt;
+const btnInstallPwa = document.getElementById('btn-install-pwa');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (btnInstallPwa) {
+        btnInstallPwa.style.display = 'block';
+    }
+});
+
+if (btnInstallPwa) {
+    btnInstallPwa.addEventListener('click', () => {
+        if (!deferredPrompt) return;
+        playTapSound();
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('El usuario aceptó instalar la app.');
+            }
+            btnInstallPwa.style.display = 'none';
+            deferredPrompt = null;
+        });
+    });
+}
+
+window.addEventListener('appinstalled', () => {
+    console.log('Leo Aventuras ha sido instalada correctamente.');
+    if (btnInstallPwa) {
+        btnInstallPwa.style.display = 'none';
+    }
+});
+

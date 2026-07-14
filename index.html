@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=2.1">
+    <link rel="manifest" href="manifest.json">
     <!-- Firebase SDK v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -502,6 +503,11 @@
             <button class="btn-action-primary" onclick="saveKidName()" style="width: 80%; margin: 0 auto; display: block; font-size: 1.1rem;">¡Empezar Aventura! 🚀</button>
         </div>
     </div>
+
+    <!-- BOTÓN FLOTANTE PARA INSTALAR APLICACIÓN -->
+    <button id="btn-install-pwa" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #FF9800; color: white; border: none; padding: 12px 24px; border-radius: 50px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3), inset 0 -4px 0 #E65100; cursor: pointer; transition: transform 0.2s; font-family: 'Fredoka', sans-serif;">
+        📲 Instalar Aplicación
+    </button>
 
     <script src="words.js?v=2.1"></script>
     <script src="app.js?v=2.1"></script>

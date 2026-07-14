@@ -1,0 +1,17 @@
+{
+  "name": "Leo Aventuras",
+  "short_name": "Leo Aventuras",
+  "description": "Plataforma Educativa para Niños",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFF9E6",
+  "theme_color": "#FF9800",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
