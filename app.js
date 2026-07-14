@@ -4293,6 +4293,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const appHeader = document.querySelector('.app-header');
     if (appHeader) appHeader.style.display = 'none';
 
+    // Configurar audio de bienvenida para la pantalla de inicio
+    const btnWelcomeAudio = document.getElementById('btn-welcome-audio');
+    if (btnWelcomeAudio) {
+        const welcomeMessage = "¡Hola! Bienvenido a Leo Aventuras. Espero que aprendas y refuerces tu lectura con estos divertidos juegos y pruebas que pasarás. ¡Junta muchas monedas para rescatar a los compañeros de Leo el león y juntar a la pandilla completa!";
+        btnWelcomeAudio.onclick = (e) => {
+            e.stopPropagation();
+            playTapSound();
+            speakText(welcomeMessage);
+        };
+        // Auto-reproducir en el primer clic/toque en la pantalla de autenticación para burlar bloqueos de auto-play del navegador
+        let playedWelcome = false;
+        const screenAuth = document.getElementById('screen-auth');
+        if (screenAuth) {
+            screenAuth.addEventListener('click', () => {
+                if (!playedWelcome && (!auth.currentUser)) {
+                    playedWelcome = true;
+                    // Pequeño retardo para no pisar el sonido de tap del clic
+                    setTimeout(() => speakText(welcomeMessage), 300);
+                }
+            });
+        }
+    }
+
     // Configurar botones de Saltar Palabra
     const skipAction = () => {
         playTapSound();
