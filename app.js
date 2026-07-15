@@ -4342,6 +4342,9 @@ function playIntroSound() {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         const ctx = new AudioContext();
+        if (ctx.state === 'suspended') {
+            ctx.resume();
+        }
         const playTone = (freq, type, duration, startTime) => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
