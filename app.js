@@ -1522,6 +1522,9 @@ function speakText(text, callback) {
 
         let plainText = text.replace(/<[^>]*>/g, "").toLowerCase();
 
+        // Eliminar emojis y caracteres Unicode especiales para evitar que el TTS los lea (ej: "estrella", "niño", etc.)
+        plainText = plainText.replace(/[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+
         // Eliminar acentos solo de tokens/letras muy cortas (ej: "á", "ár") para evitar que el TTS diga "con acento/tilde"
         // pero mantenerlos en palabras largas como "sílaba" para asegurar la entonación correcta.
         if (plainText.length <= 3) {
