@@ -1522,13 +1522,16 @@ function speakText(text, callback) {
 
         let plainText = text.replace(/<[^>]*>/g, "").toLowerCase();
 
-        // Eliminar acentos para evitar deletreos del tipo "A con acento" (ej: "árbol" -> "arbol")
-        plainText = plainText
-            .replace(/á/g, "a")
-            .replace(/é/g, "e")
-            .replace(/í/g, "i")
-            .replace(/ó/g, "o")
-            .replace(/ú/g, "u");
+        // Eliminar acentos solo de tokens/letras muy cortas (ej: "á", "ár") para evitar que el TTS diga "con acento/tilde"
+        // pero mantenerlos en palabras largas como "sílaba" para asegurar la entonación correcta.
+        if (plainText.length <= 3) {
+            plainText = plainText
+                .replace(/á/g, "a")
+                .replace(/é/g, "e")
+                .replace(/í/g, "i")
+                .replace(/ó/g, "o")
+                .replace(/ú/g, "u");
+        }
 
         // Reemplazar consonante suelta por su nombre en español para evitar pronunciación inglesa (b -> bee/bi)
         const letterNamesSpanish = {
@@ -1858,8 +1861,9 @@ function loadRound() {
         data.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn-option';
-            // Alternar de forma aleatoria entre mayúsculas y minúsculas
-            const displayChar = Math.random() > 0.5 ? opt.toUpperCase() : opt.toLowerCase();
+            // Nivel 4 y 5 (Juego Consonantes y Sílabas) usan puras mayúsculas, los demás alternan
+            const isUpperOnly = (state.currentLevel === 4 || state.currentLevel === 5);
+            const displayChar = (isUpperOnly || Math.random() > 0.5) ? opt.toUpperCase() : opt.toLowerCase();
             btn.textContent = displayChar;
             btn.onclick = () => checkSelectionAnswer(opt, btn);
             optionsContainer.appendChild(btn);
@@ -2325,6 +2329,13 @@ function runSilabarioReview(consonantData) {
         const card = document.createElement('div');
         card.className = 'syllable-card';
         card.textContent = syl;
+        card.style.cursor = 'pointer';
+        card.onclick = () => {
+            playTapSound();
+            speakText(syl.toLowerCase());
+            card.classList.add('highlighted');
+            setTimeout(() => card.classList.remove('highlighted'), 800);
+        };
         listContainer.appendChild(card);
         cards[syl] = card;
     });
@@ -2806,7 +2817,9 @@ function spawnBalloon() {
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     balloon.className = `balloon ${randomColor}`;
     balloon.style.borderColor = `inherit`;
-    balloon.textContent = letter;
+    // Alternar de forma aleatoria entre mayúsculas y minúsculas para mayor reto
+    const displayLetter = Math.random() > 0.5 ? letter.toUpperCase() : letter.toLowerCase();
+    balloon.textContent = displayLetter;
     
     // Si la sílaba es larga, reducir ligeramente el tamaño de fuente para que quepa bien
     if (letter.length > 1) {
