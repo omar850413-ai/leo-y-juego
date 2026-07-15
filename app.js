@@ -4276,8 +4276,56 @@ window.saveKidName = function() {
     }
 };
 
+// --- FUNCIÓN DE SONIDO DE INTRO (ARPEGIO CORTO ALEGRE) ---
+function playIntroSound() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const playTone = (freq, type, duration, startTime) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, startTime);
+            gain.gain.setValueAtTime(0.1, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        };
+        const now = ctx.currentTime;
+        playTone(261.63, 'triangle', 0.15, now); // C4
+        playTone(329.63, 'triangle', 0.15, now + 0.08); // E4
+        playTone(392.00, 'triangle', 0.15, now + 0.16); // G4
+        playTone(523.25, 'sine', 0.35, now + 0.24); // C5
+    } catch (e) {
+        console.warn("AudioContext blocked or not supported:", e);
+    }
+}
+
 // --- Inicializar Eventos y Lector de Pantalla Interactivo ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Lógica para ocultar el Splash Screen con transición
+    const splash = document.getElementById('app-splash-screen');
+    if (splash) {
+        const handleFirstInteraction = () => {
+            playIntroSound();
+            document.removeEventListener('click', handleFirstInteraction);
+            document.removeEventListener('touchstart', handleFirstInteraction);
+        };
+        document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction);
+
+        setTimeout(() => {
+            splash.classList.add('fade-out');
+            playIntroSound(); // Intentar reproducir automáticamente
+            setTimeout(() => {
+                splash.remove();
+            }, 800);
+        }, 3000);
+    }
+
     generateAllLevels();
     populateVoiceList();
     document.getElementById('star-count').textContent = state.stars;

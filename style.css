@@ -1813,10 +1813,78 @@ body {
         border-radius: 12px !important;
     }
     
+}
+    
     /* Camiones Silábicos */
     .truck-container {
         padding: 10px !important;
     }
+}
+
+/* PANTALLA DE INTRODUCCIÓN ANIMADA (SPLASH SCREEN) */
+.splash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #FFFDEB 0%, #FFF5D1 100%);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.8s ease, visibility 0.8s;
+}
+.splash-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+.splash-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: splashBounce 1s ease-out;
+}
+.splash-logo {
+    width: 80%;
+    max-width: 320px;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px rgba(255, 152, 0, 0.3);
+    border: 6px solid #FF9800;
+    animation: splashPulse 3s infinite ease-in-out;
+}
+.splash-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 2.5rem;
+    color: #FF9800;
+    text-shadow: 0 4px 0 #E65100, 0 8px 15px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+.splash-loader {
+    margin-top: 20px;
+    width: 50px;
+    height: 50px;
+    border: 5px solid #FFE0B2;
+    border-top: 5px solid #FF9800;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes splashBounce {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes splashPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 
