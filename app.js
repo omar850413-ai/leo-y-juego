@@ -4285,7 +4285,7 @@ window.showWelcomeSplash = function() {
                 <button class="player-close-btn" onclick="closeIntroPlayer()">×</button>
             </div>
             <div class="player-screen-area">
-                <img src="welcome.png" id="player-img" alt="Intro Animada" class="player-screen-img" style="transition: transform 11.5s linear;">
+                <img src="welcome.png" id="player-img" alt="Intro Animada" class="player-screen-img" style="transition: transform 16s linear;">
                 <div class="player-screen-overlay-play" id="player-center-play-btn">
                     <span class="center-play-icon">▶</span>
                 </div>
@@ -4297,7 +4297,7 @@ window.showWelcomeSplash = function() {
                 <div class="player-buttons-row">
                     <div class="player-left-controls">
                         <button class="player-ctrl-btn" id="player-play-btn">▶</button>
-                        <span class="player-time" id="player-time-display">0:00 / 0:11</span>
+                        <span class="player-time" id="player-time-display">0:00 / 0:16</span>
                     </div>
                     <div class="player-right-controls">
                         <button class="player-ctrl-btn" id="player-audio-btn">🔊</button>
@@ -4320,7 +4320,7 @@ window.showWelcomeSplash = function() {
     const audioBtn = document.getElementById('player-audio-btn');
 
     let isPlaying = false;
-    const duration = 11.5; // Segundos de duración del audio de bienvenida completo
+    const duration = 16.0; // Extendemos la duración a 16 segundos para dar suficiente margen de voz
 
     const startPlayback = () => {
         if (isPlaying) return;
@@ -4344,7 +4344,7 @@ window.showWelcomeSplash = function() {
             
             const floorSec = Math.floor(elapsed);
             const paddedSec = floorSec < 10 ? `0${floorSec}` : floorSec;
-            timeDisplay.textContent = `0:${Math.min(11, paddedSec)} / 0:11`;
+            timeDisplay.textContent = `0:${Math.min(16, paddedSec)} / 0:16`;
 
             if (elapsed >= duration) {
                 stopPlayback();
@@ -4361,7 +4361,7 @@ window.showWelcomeSplash = function() {
         setTimeout(() => { centerPlayBtn.style.opacity = '1'; }, 50);
         img.classList.remove('zooming');
         progressFill.style.width = '0%';
-        timeDisplay.textContent = '0:00 / 0:11';
+        timeDisplay.textContent = '0:00 / 0:16';
     };
 
     playBtn.onclick = () => {
