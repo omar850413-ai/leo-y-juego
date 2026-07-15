@@ -4273,6 +4273,8 @@ window.showWelcomeSplash = function() {
     const oldModal = document.getElementById('intro-player-modal');
     if (oldModal) oldModal.remove();
 
+    const welcomeMessage = "¡Hola! Bienvenido a Leo Aventuras. Espero que aprendas y refuerces tu lectura con estos divertidos juegos y pruebas que pasarás. ¡Junta muchas monedas para rescatar a los compañeros de Leo el león y juntar a la pandilla completa!";
+
     const modal = document.createElement('div');
     modal.id = 'intro-player-modal';
     modal.className = 'player-modal-overlay';
@@ -4283,7 +4285,7 @@ window.showWelcomeSplash = function() {
                 <button class="player-close-btn" onclick="closeIntroPlayer()">×</button>
             </div>
             <div class="player-screen-area">
-                <img src="welcome.png" id="player-img" alt="Intro Animada" class="player-screen-img">
+                <img src="welcome.png" id="player-img" alt="Intro Animada" class="player-screen-img" style="transition: transform 11.5s linear;">
                 <div class="player-screen-overlay-play" id="player-center-play-btn">
                     <span class="center-play-icon">▶</span>
                 </div>
@@ -4295,7 +4297,7 @@ window.showWelcomeSplash = function() {
                 <div class="player-buttons-row">
                     <div class="player-left-controls">
                         <button class="player-ctrl-btn" id="player-play-btn">▶</button>
-                        <span class="player-time" id="player-time-display">0:00 / 0:04</span>
+                        <span class="player-time" id="player-time-display">0:00 / 0:11</span>
                     </div>
                     <div class="player-right-controls">
                         <button class="player-ctrl-btn" id="player-audio-btn">🔊</button>
@@ -4318,7 +4320,7 @@ window.showWelcomeSplash = function() {
     const audioBtn = document.getElementById('player-audio-btn');
 
     let isPlaying = false;
-    const duration = 4.2; // Segundos de duración de la animación/audio
+    const duration = 11.5; // Segundos de duración del audio de bienvenida completo
 
     const startPlayback = () => {
         if (isPlaying) return;
@@ -4329,6 +4331,10 @@ window.showWelcomeSplash = function() {
         img.classList.add('zooming');
         
         playIntroSound();
+        // Reproducir el mensaje hablado de bienvenida después del tono arpeggio
+        setTimeout(() => {
+            if (isPlaying) speakText(welcomeMessage);
+        }, 800);
 
         const start = Date.now();
         window.playerProgressInterval = setInterval(() => {
@@ -4337,7 +4343,8 @@ window.showWelcomeSplash = function() {
             progressFill.style.width = `${pct}%`;
             
             const floorSec = Math.floor(elapsed);
-            timeDisplay.textContent = `0:0${Math.min(4, floorSec)} / 0:04`;
+            const paddedSec = floorSec < 10 ? `0${floorSec}` : floorSec;
+            timeDisplay.textContent = `0:${Math.min(11, paddedSec)} / 0:11`;
 
             if (elapsed >= duration) {
                 stopPlayback();
@@ -4347,13 +4354,14 @@ window.showWelcomeSplash = function() {
 
     const stopPlayback = () => {
         clearInterval(window.playerProgressInterval);
+        window.speechSynthesis.cancel(); // Detener el audio de inmediato al pausar
         isPlaying = false;
         playBtn.textContent = '▶';
         centerPlayBtn.style.display = 'flex';
         setTimeout(() => { centerPlayBtn.style.opacity = '1'; }, 50);
         img.classList.remove('zooming');
         progressFill.style.width = '0%';
-        timeDisplay.textContent = '0:00 / 0:04';
+        timeDisplay.textContent = '0:00 / 0:11';
     };
 
     playBtn.onclick = () => {
@@ -4372,7 +4380,8 @@ window.showWelcomeSplash = function() {
 
     audioBtn.onclick = () => {
         playTapSound();
-        playIntroSound();
+        window.speechSynthesis.cancel();
+        speakText(welcomeMessage);
     };
 
     // Auto-reproducción al abrir
@@ -4384,6 +4393,7 @@ window.closeIntroPlayer = function() {
     const modal = document.getElementById('intro-player-modal');
     if (modal) {
         clearInterval(window.playerProgressInterval);
+        window.speechSynthesis.cancel(); // Detener cualquier reproducción en curso
         modal.classList.remove('active');
         setTimeout(() => {
             modal.remove();

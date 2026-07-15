@@ -1,4 +1,4 @@
-const CACHE_NAME = 'leo-aventuras-cache-v5';
+const CACHE_NAME = 'leo-aventuras-cache-v6';
 const urlsToCache = [
   './',
   './index.html',
