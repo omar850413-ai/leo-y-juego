@@ -4285,7 +4285,7 @@ window.showWelcomeSplash = function() {
                 <button class="player-close-btn" onclick="closeIntroPlayer()">×</button>
             </div>
             <div class="player-screen-area">
-                <img src="welcome.png" id="player-img" alt="Intro Animada" class="player-screen-img" style="transition: transform 16s linear;">
+                <img src="welcome.png" id="player-img" alt="Intro Animada" class="player-screen-img" style="transition: transform 18s linear;">
                 <div class="player-screen-overlay-play" id="player-center-play-btn">
                     <span class="center-play-icon">▶</span>
                 </div>
@@ -4297,7 +4297,7 @@ window.showWelcomeSplash = function() {
                 <div class="player-buttons-row">
                     <div class="player-left-controls">
                         <button class="player-ctrl-btn" id="player-play-btn">▶</button>
-                        <span class="player-time" id="player-time-display">0:00 / 0:16</span>
+                        <span class="player-time" id="player-time-display">0:00 / 0:18</span>
                     </div>
                     <div class="player-right-controls">
                         <button class="player-ctrl-btn" id="player-audio-btn">🔊</button>
@@ -4320,7 +4320,7 @@ window.showWelcomeSplash = function() {
     const audioBtn = document.getElementById('player-audio-btn');
 
     let isPlaying = false;
-    const duration = 16.0; // Extendemos la duración a 16 segundos para dar suficiente margen de voz
+    const duration = 18.0; // Extendemos la duración a 18 segundos para dar amplio margen a cualquier velocidad de voz
 
     const startPlayback = () => {
         if (isPlaying) return;
@@ -4333,22 +4333,24 @@ window.showWelcomeSplash = function() {
         playIntroSound();
         // Reproducir el mensaje hablado de bienvenida después del tono arpeggio
         setTimeout(() => {
-            if (isPlaying) speakText(welcomeMessage);
+            if (isPlaying) {
+                speakText(welcomeMessage, () => {
+                    // Detener de inmediato al terminar la voz nativa de forma fluida
+                    if (isPlaying) stopPlayback();
+                });
+            }
         }, 800);
 
         const start = Date.now();
         window.playerProgressInterval = setInterval(() => {
             const elapsed = (Date.now() - start) / 1000;
-            const pct = Math.min(100, (elapsed / duration) * 100);
+            // Limitar la barra de progreso a 99% para dar tiempo a la voz a terminar
+            const pct = Math.min(99, (elapsed / duration) * 100);
             progressFill.style.width = `${pct}%`;
             
             const floorSec = Math.floor(elapsed);
             const paddedSec = floorSec < 10 ? `0${floorSec}` : floorSec;
-            timeDisplay.textContent = `0:${Math.min(16, paddedSec)} / 0:16`;
-
-            if (elapsed >= duration) {
-                stopPlayback();
-            }
+            timeDisplay.textContent = `0:${Math.min(18, paddedSec)} / 0:18`;
         }, 100);
     };
 
@@ -4361,7 +4363,7 @@ window.showWelcomeSplash = function() {
         setTimeout(() => { centerPlayBtn.style.opacity = '1'; }, 50);
         img.classList.remove('zooming');
         progressFill.style.width = '0%';
-        timeDisplay.textContent = '0:00 / 0:16';
+        timeDisplay.textContent = '0:00 / 0:18';
     };
 
     playBtn.onclick = () => {
