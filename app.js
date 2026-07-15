@@ -1854,6 +1854,8 @@ function loadRound() {
         // --- NIVELES 3, 4, 5 y 11: Selección Simple ---
         if (state.currentLevel === 11) {
             document.getElementById('game-prompt').innerHTML = "¿Con qué sílaba empieza?";
+        } else if (state.currentLevel === 4) {
+            document.getElementById('game-prompt').innerHTML = "¿Con qué letra inicia?";
         } else {
             document.getElementById('game-prompt').innerHTML = data.prompt;
         }
@@ -1869,7 +1871,11 @@ function loadRound() {
             optionsContainer.appendChild(btn);
         });
 
-        setTimeout(() => speakText(data.prompt), 400);
+        if (state.currentLevel === 4) {
+            setTimeout(() => speakText(`¿Con qué letra inicia: ${data.word.toLowerCase()}?`), 400);
+        } else {
+            setTimeout(() => speakText(data.prompt), 400);
+        }
 
     } else if (state.currentLevel === 6 || state.currentLevel === 7) {
         // --- NIVELES 6 y 7: Deletreo ---
@@ -2329,13 +2335,7 @@ function runSilabarioReview(consonantData) {
         const card = document.createElement('div');
         card.className = 'syllable-card';
         card.textContent = syl;
-        card.style.cursor = 'pointer';
-        card.onclick = () => {
-            playTapSound();
-            speakText(syl.toLowerCase());
-            card.classList.add('highlighted');
-            setTimeout(() => card.classList.remove('highlighted'), 800);
-        };
+        // Se inician como tarjetas no clickables durante la intro de audio
         listContainer.appendChild(card);
         cards[syl] = card;
     });
@@ -2357,7 +2357,21 @@ function runSilabarioReview(consonantData) {
                 setTimeout(playNextSyllableIntro, 300);
             });
         } else {
-            Object.values(cards).forEach(c => c.classList.remove('highlighted'));
+            // Activar las tarjetas como botones de repetición al terminar el intro
+            Object.values(cards).forEach(c => {
+                c.classList.remove('highlighted');
+                c.style.cursor = 'pointer';
+            });
+            consonantData.syllables.forEach(syl => {
+                const card = cards[syl];
+                card.onclick = () => {
+                    playTapSound();
+                    speakText(syl.toLowerCase());
+                    card.classList.add('highlighted');
+                    setTimeout(() => card.classList.remove('highlighted'), 500);
+                };
+            });
+            
             speakText("¡Excelente! Ahora encontremos palabras.", () => {
                 startBtn.style.display = 'block';
             });
@@ -2499,12 +2513,19 @@ function nextRound() {
             state.inReviewPhase = (state.currentLevel === 8);
             loadRound();
         } else {
-            speakText("¡Felicitaciones! Completaste todo el nivel.");
+            playSuccessSound();
+            addCoins(20);
+            triggerMascotReaction('success');
+
+            const kidName = (state.currentUser && state.currentUser.kidName) ? state.currentUser.kidName : "";
+            const msg = kidName ? `¡Felicitaciones ${kidName}! Completaste todo el nivel y ganaste veinte monedas.` : "¡Felicitaciones! Completaste todo el nivel y ganaste veinte monedas.";
+            speakText(msg);
+
             confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
             
             setTimeout(() => {
                 showScreen('screen-menu');
-            }, 2500);
+            }, 3200);
         }
     }, 2800);
 }
@@ -4240,6 +4261,29 @@ window.confirmResetGameProgress = function() {
             location.reload();
         }
     }
+};
+
+window.showWelcomeSplash = function() {
+    playTapSound();
+    const splash = document.createElement('div');
+    splash.id = 'app-splash-screen';
+    splash.className = 'splash-overlay';
+    splash.innerHTML = `
+        <div class="splash-content">
+            <img src="welcome.png" alt="Leo Aventuras" class="splash-logo">
+            <h1 class="splash-title">Leo Aventuras</h1>
+            <div class="splash-loader"></div>
+        </div>
+    `;
+    document.body.appendChild(splash);
+    playIntroSound();
+    
+    setTimeout(() => {
+        splash.classList.add('fade-out');
+        setTimeout(() => {
+            splash.remove();
+        }, 800);
+    }, 3000);
 };
 
 // Abrir modal de cambiar nombre del niño

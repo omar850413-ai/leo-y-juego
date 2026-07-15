@@ -148,7 +148,7 @@
                     <div class="character-mascot" id="menu-mascot">🦁</div>
                     <h1>¡Hola, <span id="kid-greeting-name">pequeño lector</span>!</h1>
                     <button onclick="openChangeNameModal()" style="background: #E3F2FD; border: 2px solid var(--color-blue); border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: var(--color-blue); cursor: pointer; font-weight: 700; margin-top: 5px; box-shadow: 0 3px 0 var(--color-blue); transition: transform 0.1s;">✏️ Cambiar Nombre</button>
-                    <button onclick="confirmResetGameProgress()" style="background: #FFEBEE; border: 2px solid #D32F2F; border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: #D32F2F; cursor: pointer; font-weight: 700; margin-top: 5px; margin-left: 10px; box-shadow: 0 3px 0 #D32F2F; transition: transform 0.1s;">🔄 Reiniciar Progreso</button>
+                    <button onclick="showWelcomeSplash()" style="background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: #2E7D32; cursor: pointer; font-weight: 700; margin-top: 5px; margin-left: 10px; box-shadow: 0 3px 0 #2E7D32; transition: transform 0.1s;">🎬 Ver Introducción</button>
                     <p style="margin-top: 8px;">¡Aprende y diviértete con Leo el León!</p>
                 </div>
                 
@@ -279,6 +279,11 @@
                     <div id="admin-pending-list" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin: 0 auto; background: #FFF; padding: 20px; border-radius: 16px; border: 3px solid #CFD8DC; box-shadow: 0 4px 0 #CFD8DC;">
                         <p style="text-align: center; color: #7F8C8D;">Buscando solicitudes pendientes...</p>
                     </div>
+                </div>
+
+                <!-- BOTÓN DE REINICIAR PROGRESO AL FONDO DEL MENÚ -->
+                <div style="text-align: center; margin-top: 40px; margin-bottom: 20px; border-top: 2px dashed #ECEFF1; padding-top: 20px;">
+                    <button onclick="confirmResetGameProgress()" style="background: #FFEBEE; border: 2px solid #D32F2F; border-radius: 12px; padding: 10px 20px; font-size: 0.9rem; color: #D32F2F; cursor: pointer; font-weight: 700; box-shadow: 0 4px 0 #D32F2F; transition: transform 0.1s;">🔄 Reiniciar Todo el Juego</button>
                 </div>
             </section>
 
