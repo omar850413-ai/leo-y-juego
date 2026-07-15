@@ -139,6 +139,7 @@
                     <div class="character-mascot" id="menu-mascot">🦁</div>
                     <h1>¡Hola, <span id="kid-greeting-name">pequeño lector</span>!</h1>
                     <button onclick="openChangeNameModal()" style="background: #E3F2FD; border: 2px solid var(--color-blue); border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: var(--color-blue); cursor: pointer; font-weight: 700; margin-top: 5px; box-shadow: 0 3px 0 var(--color-blue); transition: transform 0.1s;">✏️ Cambiar Nombre</button>
+                    <button onclick="confirmResetGameProgress()" style="background: #FFEBEE; border: 2px solid #D32F2F; border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: #D32F2F; cursor: pointer; font-weight: 700; margin-top: 5px; margin-left: 10px; box-shadow: 0 3px 0 #D32F2F; transition: transform 0.1s;">🔄 Reiniciar Progreso</button>
                     <p style="margin-top: 8px;">¡Aprende y diviértete con Leo el León!</p>
                 </div>
                 
@@ -156,73 +157,73 @@
                         <!-- Nivel 1: Conozcamos las Vocales -->
                         <button class="menu-card card-green" onclick="startLevel(1)">
                             <div class="card-icon">🗣️</div>
-                            <h3>Nivel 1: Vocales</h3>
+                            <h3>Conociendo las Vocales</h3>
                             <p>Toca y escucha A, E, I, O, U</p>
                         </button>
                         <!-- Nivel 2: Conozcamos las Consonantes -->
                         <button class="menu-card card-yellow" onclick="startLevel(2)">
                             <div class="card-icon">🎵</div>
-                            <h3>Nivel 2: Consonantes</h3>
+                            <h3>Conociendo las Consonantes</h3>
                             <p>Aprende el sonido de las letras</p>
                         </button>
                         <!-- Nivel 3: Juego de Vocales -->
                         <button class="menu-card card-blue" onclick="startLevel(3)">
                             <div class="card-icon">🎈</div>
-                            <h3>Nivel 3: Juego Vocales</h3>
+                            <h3>Nivel 1: Juego Vocales</h3>
                             <p>¿Con qué vocal empieza?</p>
                         </button>
                         <!-- Nivel 4: Juego de Consonantes -->
                         <button class="menu-card card-red" onclick="startLevel(4)">
                             <div class="card-icon">🦁</div>
-                            <h3>Nivel 4: Juego Consonantes</h3>
+                            <h3>Nivel 2: Juego Consonantes</h3>
                             <p>¿Con qué letra inicia?</p>
                         </button>
                         <!-- Nivel 5: Juego de Sílabas -->
                         <button class="menu-card card-purple" onclick="startLevel(5)">
                             <div class="card-icon">💬</div>
-                            <h3>Nivel 5: Sílabas</h3>
+                            <h3>Nivel 3: Sílabas</h3>
                             <p>¿Con qué sílaba empieza?</p>
                         </button>
                         <!-- Nivel 6: Deletreo (Palabras Cortas) -->
                         <button class="menu-card card-orange" onclick="startLevel(6)">
                             <div class="card-icon">✏️</div>
-                            <h3>Nivel 6: Palabras Cortas</h3>
+                            <h3>Nivel 4: Palabras Cortas</h3>
                             <p>Deletrea palabras de 3 y 4 letras</p>
                         </button>
                         <!-- Nivel 7: Deletreo (Palabras Grandes) -->
                         <button class="menu-card card-green" onclick="startLevel(7)">
                             <div class="card-icon">📚</div>
-                            <h3>Nivel 7: Palabras Grandes</h3>
+                            <h3>Nivel 5: Palabras Grandes</h3>
                             <p>Deletrea palabras más largas</p>
                         </button>
                         <!-- Nivel 8: Silabario Mágico -->
                         <button class="menu-card card-yellow" onclick="startLevel(8)">
                             <div class="card-icon">✨</div>
-                            <h3>Nivel 8: Silabario Mágico</h3>
+                            <h3>Nivel 6: Silabario Mágico</h3>
                             <p>Repasa y junta sílabas en oraciones</p>
                         </button>
                         <!-- Nivel 9: Sopa de Letras -->
                         <button class="menu-card card-red" onclick="startLevel(9)">
                             <div class="card-icon">🔍</div>
-                            <h3>Nivel 9: Sopa de Letras</h3>
+                            <h3>Nivel 7: Sopa de Letras</h3>
                             <p>Busca letras para formar la palabra</p>
                         </button>
                         <!-- Nivel 10: Constructor de Sílabas -->
                         <button class="menu-card card-orange" onclick="startLevel(10)">
                             <div class="card-icon">🧩</div>
-                            <h3>Nivel 10: Juntar Sílabas</h3>
+                            <h3>Nivel 8: Juntar Sílabas</h3>
                             <p>Une las sílabas correctas</p>
                         </button>
                         <!-- Nivel 11: Sílabas Inversas -->
                         <button class="menu-card card-purple" onclick="startLevel(11)">
                             <div class="card-icon">🌀</div>
-                            <h3>Nivel 11: Sílabas Inversas</h3>
+                            <h3>Nivel 9: Sílabas Inversas</h3>
                             <p>Vocal antes de consonante (AL, ES, IN...)</p>
                         </button>
                         <!-- Nivel 12: Primeras Lecturas -->
                         <button class="menu-card card-blue" onclick="startLevel(12)">
                             <div class="card-icon">📖</div>
-                            <h3>Nivel 12: Primeras Lecturas</h3>
+                            <h3>Nivel 10: Primeras Lecturas</h3>
                             <p>Une palabras para formar enunciados</p>
                         </button>
                     </div>

@@ -1520,9 +1520,30 @@ function speakText(text, callback) {
             }
         }
 
-        // Limpiar cualquier etiqueta HTML del texto hablado para evitar que se pronuncien las etiquetas y pasar a minúsculas
-        // Esto previene que el motor de voz deletree sílabas escritas en mayúscula (como AM, MA, etc.)
         let plainText = text.replace(/<[^>]*>/g, "").toLowerCase();
+
+        // Eliminar acentos para evitar deletreos del tipo "A con acento" (ej: "árbol" -> "arbol")
+        plainText = plainText
+            .replace(/á/g, "a")
+            .replace(/é/g, "e")
+            .replace(/í/g, "i")
+            .replace(/ó/g, "o")
+            .replace(/ú/g, "u");
+
+        // Reemplazar consonante suelta por su nombre en español para evitar pronunciación inglesa (b -> bee/bi)
+        const letterNamesSpanish = {
+            "b": "be", "c": "ce", "d": "de", "f": "efe", "g": "ge",
+            "h": "ache", "j": "jota", "k": "ka", "l": "ele", "m": "eme",
+            "n": "ene", "ñ": "eñe", "p": "pe", "q": "cu", "r": "erre",
+            "s": "ese", "t": "te", "v": "ve", "w": "doble ve", "x": "equis",
+            "y": "ye", "z": "zeta"
+        };
+        if (plainText.length === 1 && letterNamesSpanish[plainText]) {
+            plainText = letterNamesSpanish[plainText];
+        }
+
+        // Reemplazar la H muda al inicio de palabras/sílabas para que no suene como "jai" o "jay-lo" en inglés
+        plainText = plainText.replace(/\bh([aeiou])/gi, "$1");
 
         // Evitar que el lector de voz interprete las sílabas "xi" y "vi" como números romanos (11 y 6) en ambos idiomas
         plainText = plainText.replace(/\bxi\b/gi, "si");
@@ -1723,18 +1744,18 @@ function startLevel(levelNum) {
     state.inReviewPhase = (levelNum === 8);
     
     const levelNames = {
-        1: "Nivel 1: Conozcamos las Vocales",
-        2: "Nivel 2: Conozcamos las Consonantes",
-        3: "Nivel 3: Juego Vocales",
-        4: "Nivel 4: Juego Consonantes",
-        5: "Nivel 5: Sílabas",
-        6: "Nivel 6: Palabras Cortas",
-        7: "Nivel 7: Palabras Grandes",
-        8: "Nivel 8: Silabario Mágico",
-        9: "Nivel 9: Sopa de Letras",
-        10: "Nivel 10: Juntar Sílabas",
-        11: "Nivel 11: Sílabas Inversas",
-        12: "Nivel 12: Primeras Lecturas"
+        1: "Conociendo las Vocales",
+        2: "Conociendo las Consonantes",
+        3: "Nivel 1: Juego Vocales",
+        4: "Nivel 2: Juego Consonantes",
+        5: "Nivel 3: Sílabas",
+        6: "Nivel 4: Palabras Cortas",
+        7: "Nivel 5: Palabras Grandes",
+        8: "Nivel 6: Silabario Mágico",
+        9: "Nivel 7: Sopa de Letras",
+        10: "Nivel 8: Juntar Sílabas",
+        11: "Nivel 9: Sílabas Inversas",
+        12: "Nivel 10: Primeras Lecturas"
     };
     
     document.getElementById('game-title').textContent = levelNames[levelNum];
@@ -4163,6 +4184,50 @@ function approveUser(uid) {
         playFailSound();
     });
 }
+
+window.confirmResetGameProgress = function() {
+    playTapSound();
+    const confirmReset = confirm("¿Estás seguro de que quieres reiniciar completamente el juego? Se borrará todo tu progreso (estrellas, monedas y compañeros rescatados).");
+    if (confirmReset) {
+        state.stars = 0;
+        state.coins = 0;
+        state.unlockedFriends = [];
+        state.activeMascot = "🦁";
+        
+        document.getElementById('star-count').textContent = 0;
+        document.getElementById('coin-count').textContent = 0;
+        const avatar = document.getElementById('mascot-avatar');
+        if (avatar) avatar.textContent = "🦁";
+        const menuMascot = document.getElementById('menu-mascot');
+        if (menuMascot) menuMascot.textContent = "🦁";
+
+        localStorage.setItem('stars-reader', 0);
+        localStorage.setItem('coins-reader', 0);
+        
+        if (auth.currentUser) {
+            db.collection('users').doc(auth.currentUser.uid).update({
+                stars: 0,
+                coins: 0,
+                unlockedFriends: [],
+                activeMascot: "🦁"
+            })
+            .then(() => {
+                playSuccessSound();
+                alert("¡Progreso reiniciado con éxito!");
+                location.reload();
+            })
+            .catch(err => {
+                console.error("Error al actualizar Firebase:", err);
+                alert("Progreso reiniciado.");
+                location.reload();
+            });
+        } else {
+            playSuccessSound();
+            alert("¡Progreso reiniciado con éxito!");
+            location.reload();
+        }
+    }
+};
 
 // Abrir modal de cambiar nombre del niño
 window.openChangeNameModal = function() {
