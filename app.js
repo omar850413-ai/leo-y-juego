@@ -4268,25 +4268,127 @@ window.confirmResetGameProgress = function() {
 
 window.showWelcomeSplash = function() {
     playTapSound();
-    const splash = document.createElement('div');
-    splash.id = 'app-splash-screen';
-    splash.className = 'splash-overlay';
-    splash.innerHTML = `
-        <div class="splash-content">
-            <img src="welcome.png" alt="Leo Aventuras" class="splash-logo">
-            <h1 class="splash-title">Leo Aventuras</h1>
-            <div class="splash-loader"></div>
+    
+    // Evitar duplicados del modal
+    const oldModal = document.getElementById('intro-player-modal');
+    if (oldModal) oldModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'intro-player-modal';
+    modal.className = 'player-modal-overlay';
+    modal.innerHTML = `
+        <div class="player-container">
+            <div class="player-header">
+                <span class="player-title">🎬 Leo Aventuras - Introducción</span>
+                <button class="player-close-btn" onclick="closeIntroPlayer()">×</button>
+            </div>
+            <div class="player-screen-area">
+                <img src="welcome.png" id="player-img" alt="Intro Animada" class="player-screen-img">
+                <div class="player-screen-overlay-play" id="player-center-play-btn">
+                    <span class="center-play-icon">▶</span>
+                </div>
+            </div>
+            <div class="player-controls">
+                <div class="player-progress-container" id="player-progress-bar">
+                    <div class="player-progress-fill" id="player-progress-fill"></div>
+                </div>
+                <div class="player-buttons-row">
+                    <div class="player-left-controls">
+                        <button class="player-ctrl-btn" id="player-play-btn">▶</button>
+                        <span class="player-time" id="player-time-display">0:00 / 0:04</span>
+                    </div>
+                    <div class="player-right-controls">
+                        <button class="player-ctrl-btn" id="player-audio-btn">🔊</button>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
-    document.body.appendChild(splash);
-    playIntroSound();
-    
+    document.body.appendChild(modal);
+
     setTimeout(() => {
-        splash.classList.add('fade-out');
+        modal.classList.add('active');
+    }, 50);
+
+    const playBtn = document.getElementById('player-play-btn');
+    const centerPlayBtn = document.getElementById('player-center-play-btn');
+    const progressFill = document.getElementById('player-progress-fill');
+    const img = document.getElementById('player-img');
+    const timeDisplay = document.getElementById('player-time-display');
+    const audioBtn = document.getElementById('player-audio-btn');
+
+    let isPlaying = false;
+    const duration = 4.2; // Segundos de duración de la animación/audio
+
+    const startPlayback = () => {
+        if (isPlaying) return;
+        isPlaying = true;
+        centerPlayBtn.style.opacity = '0';
+        setTimeout(() => { centerPlayBtn.style.display = 'none'; }, 300);
+        playBtn.textContent = '⏸';
+        img.classList.add('zooming');
+        
+        playIntroSound();
+
+        const start = Date.now();
+        window.playerProgressInterval = setInterval(() => {
+            const elapsed = (Date.now() - start) / 1000;
+            const pct = Math.min(100, (elapsed / duration) * 100);
+            progressFill.style.width = `${pct}%`;
+            
+            const floorSec = Math.floor(elapsed);
+            timeDisplay.textContent = `0:0${Math.min(4, floorSec)} / 0:04`;
+
+            if (elapsed >= duration) {
+                stopPlayback();
+            }
+        }, 100);
+    };
+
+    const stopPlayback = () => {
+        clearInterval(window.playerProgressInterval);
+        isPlaying = false;
+        playBtn.textContent = '▶';
+        centerPlayBtn.style.display = 'flex';
+        setTimeout(() => { centerPlayBtn.style.opacity = '1'; }, 50);
+        img.classList.remove('zooming');
+        progressFill.style.width = '0%';
+        timeDisplay.textContent = '0:00 / 0:04';
+    };
+
+    playBtn.onclick = () => {
+        playTapSound();
+        if (isPlaying) {
+            stopPlayback();
+        } else {
+            startPlayback();
+        }
+    };
+
+    centerPlayBtn.onclick = () => {
+        playTapSound();
+        startPlayback();
+    };
+
+    audioBtn.onclick = () => {
+        playTapSound();
+        playIntroSound();
+    };
+
+    // Auto-reproducción al abrir
+    setTimeout(startPlayback, 400);
+};
+
+window.closeIntroPlayer = function() {
+    playTapSound();
+    const modal = document.getElementById('intro-player-modal');
+    if (modal) {
+        clearInterval(window.playerProgressInterval);
+        modal.classList.remove('active');
         setTimeout(() => {
-            splash.remove();
-        }, 800);
-    }, 3000);
+            modal.remove();
+        }, 300);
+    }
 };
 
 // Abrir modal de cambiar nombre del niño
