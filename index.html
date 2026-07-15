@@ -131,7 +131,13 @@
                         </div>
                         <div class="auth-field">
                             <label for="auth-password">🔒 Contraseña</label>
-                            <input type="password" id="auth-password" placeholder="Tu contraseña" required>
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <input type="password" id="auth-password" placeholder="Tu contraseña" required style="width: 100%; padding-right: 45px;">
+                                <button type="button" onclick="togglePasswordVisibility()" style="position: absolute; right: 12px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #7F8C8D; padding: 0; display: flex; align-items: center; justify-content: center; height: 100%; z-index: 10;" title="Mostrar/Ocultar contraseña">👁️</button>
+                            </div>
+                        </div>
+                        <div style="text-align: right; margin-top: -5px; margin-bottom: 5px;">
+                            <button type="button" onclick="handleRecoverPassword()" style="background: none; border: none; color: #FF9800; font-size: 0.85rem; font-weight: 700; cursor: pointer; text-decoration: underline; padding: 0; font-family: 'Fredoka', sans-serif;">¿Olvidaste tu contraseña?</button>
                         </div>
 
                         <div id="auth-error-msg" class="auth-error-box" style="display: none;"></div>

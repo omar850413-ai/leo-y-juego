@@ -4448,6 +4448,47 @@ window.saveKidName = function() {
     }
 };
 
+// Alternar visibilidad de contraseña
+window.togglePasswordVisibility = function() {
+    playTapSound();
+    const passwordInput = document.getElementById('auth-password');
+    if (passwordInput) {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+        } else {
+            passwordInput.type = 'password';
+        }
+    }
+};
+
+// Enviar correo de restablecimiento de contraseña de Firebase Auth
+window.handleRecoverPassword = function() {
+    playTapSound();
+    const emailInput = document.getElementById('auth-email');
+    const email = emailInput ? emailInput.value.trim() : "";
+    
+    if (!email) {
+        speakText("Por favor, escribe primero tu correo electrónico arriba para poder enviarte el enlace de recuperación.");
+        alert("Por favor, escribe primero tu correo electrónico arriba en el formulario.");
+        return;
+    }
+    
+    auth.sendPasswordResetEmail(email)
+    .then(() => {
+        speakText("Enlace enviado. Revisa tu correo electrónico para restablecer tu contraseña.");
+        alert("¡Enlace de recuperación enviado! Revisa tu correo electrónico (incluyendo la carpeta de correo no deseado/spam).");
+    })
+    .catch(err => {
+        console.error("Error al enviar recuperación:", err);
+        let errorMsg = "Ocurrió un error. Verifica que el correo esté bien escrito.";
+        if (err.code === 'auth/user-not-found') {
+            errorMsg = "No existe ninguna cuenta registrada con este correo electrónico.";
+        }
+        speakText(errorMsg);
+        alert(errorMsg);
+    });
+};
+
 // --- FUNCIÓN DE SONIDO DE INTRO (ARPEGIO CORTO ALEGRE) ---
 function playIntroSound() {
     try {
