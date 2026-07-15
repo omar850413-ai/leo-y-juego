@@ -4290,18 +4290,13 @@ window.showWelcomeSplash = function() {
                     <span class="center-play-icon">▶</span>
                 </div>
             </div>
-            <div class="player-controls">
-                <div class="player-progress-container" id="player-progress-bar">
+            <div class="player-controls" style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="player-progress-container" id="player-progress-bar" style="margin-bottom: 0;">
                     <div class="player-progress-fill" id="player-progress-fill"></div>
                 </div>
-                <div class="player-buttons-row">
-                    <div class="player-left-controls">
-                        <button class="player-ctrl-btn" id="player-play-btn">▶</button>
-                        <span class="player-time" id="player-time-display">0:00 / 0:18</span>
-                    </div>
-                    <div class="player-right-controls">
-                        <button class="player-ctrl-btn" id="player-audio-btn">🔊</button>
-                    </div>
+                <div class="player-buttons-row" style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                    <button class="player-ctrl-btn" id="player-play-btn">▶</button>
+                    <button onclick="closeIntroPlayer()" style="background: #2E7D32; border: 2px solid #1B5E20; border-radius: 12px; padding: 8px 20px; font-size: 0.95rem; color: white; cursor: pointer; font-weight: 700; box-shadow: 0 4px 0 #1B5E20; transition: transform 0.1s; font-family: 'Fredoka', sans-serif;">¡Comenzar a Jugar! 🚀</button>
                 </div>
             </div>
         </div>
@@ -4316,11 +4311,9 @@ window.showWelcomeSplash = function() {
     const centerPlayBtn = document.getElementById('player-center-play-btn');
     const progressFill = document.getElementById('player-progress-fill');
     const img = document.getElementById('player-img');
-    const timeDisplay = document.getElementById('player-time-display');
-    const audioBtn = document.getElementById('player-audio-btn');
 
     let isPlaying = false;
-    const duration = 18.0; // Extendemos la duración a 18 segundos para dar amplio margen a cualquier velocidad de voz
+    const duration = 18.0; // Duración total para barra de progreso
 
     const startPlayback = () => {
         if (isPlaying) return;
@@ -4335,7 +4328,6 @@ window.showWelcomeSplash = function() {
         setTimeout(() => {
             if (isPlaying) {
                 speakText(welcomeMessage, () => {
-                    // Detener de inmediato al terminar la voz nativa de forma fluida
                     if (isPlaying) stopPlayback();
                 });
             }
@@ -4344,13 +4336,8 @@ window.showWelcomeSplash = function() {
         const start = Date.now();
         window.playerProgressInterval = setInterval(() => {
             const elapsed = (Date.now() - start) / 1000;
-            // Limitar la barra de progreso a 99% para dar tiempo a la voz a terminar
             const pct = Math.min(99, (elapsed / duration) * 100);
             progressFill.style.width = `${pct}%`;
-            
-            const floorSec = Math.floor(elapsed);
-            const paddedSec = floorSec < 10 ? `0${floorSec}` : floorSec;
-            timeDisplay.textContent = `0:${Math.min(18, paddedSec)} / 0:18`;
         }, 100);
     };
 
@@ -4363,7 +4350,6 @@ window.showWelcomeSplash = function() {
         setTimeout(() => { centerPlayBtn.style.opacity = '1'; }, 50);
         img.classList.remove('zooming');
         progressFill.style.width = '0%';
-        timeDisplay.textContent = '0:00 / 0:18';
     };
 
     playBtn.onclick = () => {
@@ -4378,12 +4364,6 @@ window.showWelcomeSplash = function() {
     centerPlayBtn.onclick = () => {
         playTapSound();
         startPlayback();
-    };
-
-    audioBtn.onclick = () => {
-        playTapSound();
-        window.speechSynthesis.cancel();
-        speakText(welcomeMessage);
     };
 
     // Auto-reproducción al abrir
