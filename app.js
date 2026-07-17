@@ -1766,8 +1766,11 @@ function startLevel(levelNum) {
     
     document.getElementById('game-title').textContent = levelNames[levelNum];
     showScreen('screen-game');
-    loadRound();
-    speakText(levelNames[levelNum]);
+    
+    // Hablar primero el título del nivel, y al terminar de hablar, iniciar la ronda
+    speakText(levelNames[levelNum], () => {
+        loadRound();
+    });
 }
 
 function loadRound() {
