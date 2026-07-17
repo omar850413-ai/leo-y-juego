@@ -1538,10 +1538,10 @@ function speakText(text, callback) {
 
         // Reemplazar consonante suelta por su nombre en español para evitar pronunciación inglesa (b -> bee/bi)
         const letterNamesSpanish = {
-            "b": "be", "c": "ce", "d": "de", "f": "efe", "g": "ge",
+            "b": "beh", "c": "ceh", "d": "deh", "f": "efe", "g": "geh",
             "h": "ache", "j": "jota", "k": "ka", "l": "ele", "m": "eme",
-            "n": "ene", "ñ": "eñe", "p": "pe", "q": "cu", "r": "erre",
-            "s": "ese", "t": "te", "v": "ve", "w": "doble ve", "x": "equis",
+            "n": "ene", "ñ": "eñe", "p": "peh", "q": "cu", "r": "erre",
+            "s": "ese", "t": "teh", "v": "beh", "w": "doble ve", "x": "equis",
             "y": "ye", "z": "zeta"
         };
         if (plainText.length === 1 && letterNamesSpanish[plainText]) {
