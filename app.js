@@ -1536,29 +1536,19 @@ function speakText(text, callback) {
                 .replace(/ú/g, "u");
         }
 
-        // Reemplazar consonante suelta por su nombre en español para evitar pronunciación inglesa (b -> bee/bi)
+        // Reemplazar consonante suelta por su nombre estándar en español
         const letterNamesSpanish = {
-            "b": "beh", "c": "ceh", "d": "deh", "f": "efe", "g": "geh",
+            "b": "be", "c": "ce", "d": "de", "f": "efe", "g": "ge",
             "h": "ache", "j": "jota", "k": "ka", "l": "ele", "m": "eme",
-            "n": "ene", "ñ": "eñe", "p": "peh", "q": "cu", "r": "erre",
-            "s": "ese", "t": "teh", "v": "beh", "w": "doble ve", "x": "equis",
+            "n": "ene", "ñ": "eñe", "p": "pe", "q": "cu", "r": "erre",
+            "s": "ese", "t": "te", "v": "ve", "w": "doble ve", "x": "equis",
             "y": "ye", "z": "zeta"
         };
         if (plainText.length === 1 && letterNamesSpanish[plainText]) {
             plainText = letterNamesSpanish[plainText];
         }
 
-        // Reemplazar nombres de letras comunes y monosílabos para evitar pronunciación inglesa (be -> bi, de -> di)
-        plainText = plainText
-            .replace(/\bbe\b/g, "beh")
-            .replace(/\bde\b/g, "deh")
-            .replace(/\bte\b/g, "teh")
-            .replace(/\bme\b/g, "meh")
-            .replace(/\bse\b/g, "seh")
-            .replace(/\bpe\b/g, "peh")
-            .replace(/\bve\b/g, "beh");
-
-        // Reemplazar la H muda al inicio de palabras/sílabas para que no suene como "jai" o "jay-lo" en inglés
+        // Reemplazar la H muda al inicio de palabras/sílabas en todos los motores para asegurar que sea muda (ej: ho -> o, hi -> i)
         plainText = plainText.replace(/\bh([aeiou])/gi, "$1");
 
         // Evitar que el lector de voz interprete las sílabas "xi" y "vi" como números romanos (11 y 6) en ambos idiomas
@@ -1582,6 +1572,16 @@ function speakText(text, callback) {
         if (!isSpanish) {
             // Reemplazos de auxilio exclusivos para el motor de voz en inglés (para simular fonética española)
             let englishPrep = plainText;
+
+            // Reemplazar nombres de letras comunes y monosílabos para evitar pronunciación inglesa (be -> bi, de -> di)
+            englishPrep = englishPrep
+                .replace(/\bbe\b/g, "beh")
+                .replace(/\bde\b/g, "deh")
+                .replace(/\bte\b/g, "teh")
+                .replace(/\bme\b/g, "meh")
+                .replace(/\bse\b/g, "seh")
+                .replace(/\bpe\b/g, "peh")
+                .replace(/\bve\b/g, "beh");
             
             // Añadir una H muda al final de sílabas de 2 o 3 letras terminadas en E o É (ej. be/bé -> beh)
             englishPrep = englishPrep.replace(/\b([a-zñÁÉÍÓÚáéíóú]{1,2})[eé]\b/gi, "$1eh");
