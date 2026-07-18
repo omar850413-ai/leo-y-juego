@@ -1548,6 +1548,16 @@ function speakText(text, callback) {
             plainText = letterNamesSpanish[plainText];
         }
 
+        // Reemplazar nombres de letras comunes y monosílabos para evitar pronunciación inglesa (be -> bi, de -> di)
+        plainText = plainText
+            .replace(/\bbe\b/g, "beh")
+            .replace(/\bde\b/g, "deh")
+            .replace(/\bte\b/g, "teh")
+            .replace(/\bme\b/g, "meh")
+            .replace(/\bse\b/g, "seh")
+            .replace(/\bpe\b/g, "peh")
+            .replace(/\bve\b/g, "beh");
+
         // Reemplazar la H muda al inicio de palabras/sílabas para que no suene como "jai" o "jay-lo" en inglés
         plainText = plainText.replace(/\bh([aeiou])/gi, "$1");
 
@@ -1869,8 +1879,8 @@ function loadRound() {
         data.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn-option';
-            // Nivel 4 y 5 (Juego Consonantes y Sílabas) usan puras mayúsculas, los demás alternan
-            const isUpperOnly = (state.currentLevel === 4 || state.currentLevel === 5);
+            // Nivel 2 (Juego Consonantes), Nivel 3 (Sílabas) y Nivel 9 (Sílabas Inversas) usan puras mayúsculas
+            const isUpperOnly = (state.currentLevel === 4 || state.currentLevel === 5 || state.currentLevel === 11);
             const displayChar = (isUpperOnly || Math.random() > 0.5) ? opt.toUpperCase() : opt.toLowerCase();
             btn.textContent = displayChar;
             btn.onclick = () => checkSelectionAnswer(opt, btn);
@@ -1904,8 +1914,8 @@ function loadRound() {
         letters.forEach((item) => {
             const btn = document.createElement('button');
             btn.className = 'btn-option';
-            // Alternar de forma aleatoria entre mayúscula y minúscula
-            const displayChar = Math.random() > 0.5 ? item.char.toUpperCase() : item.char.toLowerCase();
+            // Nivel 4 y Nivel 5 (Palabras Cortas y Palabras Grandes) usan puras mayúsculas
+            const displayChar = item.char.toUpperCase();
             btn.textContent = displayChar;
             btn.onclick = () => handleLetterSelection(item.char, btn);
             optionsContainer.appendChild(btn);
@@ -1924,7 +1934,8 @@ function loadRound() {
         options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn-option word-card';
-            btn.innerHTML = `<span class="word-emoji">${opt.emoji}</span><span>${opt.word}</span>`;
+            // Mostrar solo texto para evitar dar pistas visuales con el dibujo
+            btn.innerHTML = `<span>${opt.word}</span>`;
             btn.onclick = () => checkSilabarioAnswer(opt.word, btn);
             optionsContainer.appendChild(btn);
         });
