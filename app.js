@@ -4190,19 +4190,24 @@ function unlockFriend(friendKey, cost) {
 
 // --- PANEL DE ADMINISTRADOR ---
 function loadAdminPending() {
-    const list = document.getElementById('admin-pending-list');
-    if (!list) return;
+    const pendingList = document.getElementById('admin-pending-list');
+    const activeList = document.getElementById('admin-active-list');
+    if (!pendingList || !activeList) return;
     
-    db.collection('users').where('approved', '==', false).get()
+    db.collection('users').get()
     .then((querySnapshot) => {
-        list.innerHTML = '';
-        if (querySnapshot.empty) {
-            list.innerHTML = `<p style="text-align: center; color: #7F8C8D; font-weight: bold; margin: 20px 0;">🎉 No hay registros pendientes de aprobación.</p>`;
-            return;
-        }
+        pendingList.innerHTML = '';
+        activeList.innerHTML = '';
+        
+        let pendingCount = 0;
+        let activeCount = 0;
         
         querySnapshot.forEach((doc) => {
             const u = doc.data();
+            
+            // Omitir al propio administrador para que no se bloquee a sí mismo
+            if (u.role === 'admin') return;
+            
             const row = document.createElement('div');
             row.style.display = 'flex';
             row.style.justifyContent = 'space-between';
@@ -4210,19 +4215,40 @@ function loadAdminPending() {
             row.style.borderBottom = '1px solid #ECEFF1';
             row.style.padding = '10px 0';
             
-            row.innerHTML = `
-                <div>
-                    <strong style="color: #2C3E50;">👦 ${u.kidName}</strong>
-                    <div style="font-size: 0.85rem; color: #7F8C8D;">✉️ ${u.email}</div>
-                </div>
-                <button class="btn-option" style="background-color: var(--color-green); color: white;" onclick="approveUser('${u.uid}')">Aprobar ✅</button>
-            `;
-            list.appendChild(row);
+            if (u.approved === false) {
+                pendingCount++;
+                row.innerHTML = `
+                    <div>
+                        <strong style="color: #2C3E50;">👦 ${u.kidName || 'Sin Nombre'}</strong>
+                        <div style="font-size: 0.85rem; color: #7F8C8D;">✉️ ${u.email}</div>
+                    </div>
+                    <button class="btn-option" style="background-color: var(--color-green); color: white;" onclick="approveUser('${u.uid}')">Aprobar ✅</button>
+                `;
+                pendingList.appendChild(row);
+            } else {
+                activeCount++;
+                row.innerHTML = `
+                    <div>
+                        <strong style="color: #2C3E50;">👦 ${u.kidName || 'Aventurero'}</strong>
+                        <div style="font-size: 0.85rem; color: #7F8C8D;">✉️ ${u.email}</div>
+                    </div>
+                    <button class="btn-option" style="background-color: #D32F2F; color: white; border-color: #D32F2F; box-shadow: 0 4px 0 #B71C1C;" onclick="blockUser('${u.uid}')">Bloquear ❌</button>
+                `;
+                activeList.appendChild(row);
+            }
         });
+        
+        if (pendingCount === 0) {
+            pendingList.innerHTML = `<p style="text-align: center; color: #7F8C8D; font-weight: bold; margin: 10px 0;">🎉 No hay solicitudes pendientes de aprobación.</p>`;
+        }
+        if (activeCount === 0) {
+            activeList.innerHTML = `<p style="text-align: center; color: #7F8C8D; font-weight: bold; margin: 10px 0;">👥 No hay otros usuarios registrados y activos.</p>`;
+        }
     })
     .catch(err => {
         console.error(err);
-        list.innerHTML = `<p style="text-align: center; color: #C62828; font-weight: bold;">Error al conectar con Firestore.</p>`;
+        pendingList.innerHTML = `<p style="text-align: center; color: #C62828; font-weight: bold;">Error al conectar con Firestore.</p>`;
+        activeList.innerHTML = `<p style="text-align: center; color: #C62828; font-weight: bold;">Error al conectar con Firestore.</p>`;
     });
 }
 
@@ -4237,6 +4263,22 @@ function approveUser(uid) {
         console.error(err);
         playFailSound();
     });
+}
+
+function blockUser(uid) {
+    playTapSound();
+    const confirmBlock = confirm("¿Estás seguro de que deseas bloquear a este usuario? Se le revocará el acceso de inmediato.");
+    if (confirmBlock) {
+        db.collection('users').doc(uid).update({ approved: false })
+        .then(() => {
+            playSuccessSound();
+            loadAdminPending();
+        })
+        .catch(err => {
+            console.error(err);
+            playFailSound();
+        });
+    }
 }
 
 window.confirmResetGameProgress = function() {

@@ -155,6 +155,7 @@
                     <h1>¡Hola, <span id="kid-greeting-name">pequeño lector</span>!</h1>
                     <button onclick="openChangeNameModal()" style="background: #E3F2FD; border: 2px solid var(--color-blue); border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: var(--color-blue); cursor: pointer; font-weight: 700; margin-top: 5px; box-shadow: 0 3px 0 var(--color-blue); transition: transform 0.1s;">✏️ Cambiar Nombre</button>
                     <button onclick="showWelcomeSplash()" style="background: #E8F5E9; border: 2px solid #2E7D32; border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: #2E7D32; cursor: pointer; font-weight: 700; margin-top: 5px; margin-left: 10px; box-shadow: 0 3px 0 #2E7D32; transition: transform 0.1s;">🎬 Ver Introducción</button>
+                    <button onclick="logout()" style="background: #FFF3E0; border: 2px solid #E65100; border-radius: 12px; padding: 6px 14px; font-size: 0.85rem; color: #E65100; cursor: pointer; font-weight: 700; margin-top: 5px; margin-left: 10px; box-shadow: 0 3px 0 #E65100; transition: transform 0.1s;">🚪 Cerrar Sesión</button>
                     <p style="margin-top: 8px;">¡Aprende y diviértete con Leo el León!</p>
                 </div>
                 
@@ -279,11 +280,18 @@
                 <!-- CONTENEDOR DEL PANEL DE ADMINISTRACIÓN -->
                 <div id="container-admin" class="tab-content" style="display: none;">
                     <div style="margin-bottom: 20px;">
-                        <h3 style="color: #2C3E50; font-size: 1.3rem; text-align: center;">⚙️ Panel de Control</h3>
-                        <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">Aprueba los nuevos registros de niños para permitirles el acceso.</p>
+                        <h3 style="color: #2C3E50; font-size: 1.3rem; text-align: center;">⚙️ Panel de Control Administrador</h3>
+                        <p style="color: #7F8C8D; font-size: 0.95rem; text-align: center;">Gestiona el acceso de los niños a la aplicación.</p>
                     </div>
-                    <div id="admin-pending-list" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin: 0 auto; background: #FFF; padding: 20px; border-radius: 16px; border: 3px solid #CFD8DC; box-shadow: 0 4px 0 #CFD8DC;">
+                    
+                    <h4 style="color: #2C3E50; max-width: 500px; margin: 15px auto 5px auto; font-family: 'Fredoka', sans-serif;">⏳ Solicitudes Pendientes</h4>
+                    <div id="admin-pending-list" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin: 0 auto 20px auto; background: #FFF; padding: 20px; border-radius: 16px; border: 3px solid #CFD8DC; box-shadow: 0 4px 0 #CFD8DC;">
                         <p style="text-align: center; color: #7F8C8D;">Buscando solicitudes pendientes...</p>
+                    </div>
+
+                    <h4 style="color: #2C3E50; max-width: 500px; margin: 15px auto 5px auto; font-family: 'Fredoka', sans-serif;">👥 Usuarios Conectados / Aprobados</h4>
+                    <div id="admin-active-list" style="display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin: 0 auto; background: #FFF; padding: 20px; border-radius: 16px; border: 3px solid #CFD8DC; box-shadow: 0 4px 0 #CFD8DC;">
+                        <p style="text-align: center; color: #7F8C8D;">Buscando usuarios conectados...</p>
                     </div>
                 </div>
 
