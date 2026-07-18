@@ -1548,6 +1548,11 @@ function speakText(text, callback) {
             plainText = letterNamesSpanish[plainText];
         }
 
+        // Reemplazar B y V por "beh" de forma global (ya que "beh" es una interjección válida en español y no causa deletreo de H, pero evita "bi" en inglés)
+        plainText = plainText
+            .replace(/\bbe\b/g, "beh")
+            .replace(/\bve\b/g, "beh");
+
         // Reemplazar la H muda al inicio de palabras/sílabas en todos los motores para asegurar que sea muda (ej: ho -> o, hi -> i)
         plainText = plainText.replace(/\bh([aeiou])/gi, "$1");
 
@@ -1573,15 +1578,13 @@ function speakText(text, callback) {
             // Reemplazos de auxilio exclusivos para el motor de voz en inglés (para simular fonética española)
             let englishPrep = plainText;
 
-            // Reemplazar nombres de letras comunes y monosílabos para evitar pronunciación inglesa (be -> bi, de -> di)
+            // Reemplazar nombres de letras comunes y monosílabos para evitar pronunciación inglesa (de -> di, pe -> pi)
             englishPrep = englishPrep
-                .replace(/\bbe\b/g, "beh")
                 .replace(/\bde\b/g, "deh")
                 .replace(/\bte\b/g, "teh")
                 .replace(/\bme\b/g, "meh")
                 .replace(/\bse\b/g, "seh")
-                .replace(/\bpe\b/g, "peh")
-                .replace(/\bve\b/g, "beh");
+                .replace(/\bpe\b/g, "peh");
             
             // Añadir una H muda al final de sílabas de 2 o 3 letras terminadas en E o É (ej. be/bé -> beh)
             englishPrep = englishPrep.replace(/\b([a-zñÁÉÍÓÚáéíóú]{1,2})[eé]\b/gi, "$1eh");
